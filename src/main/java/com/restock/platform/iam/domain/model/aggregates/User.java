@@ -1,6 +1,7 @@
 package com.restock.platform.iam.domain.model.aggregates;
 
 import com.restock.platform.iam.domain.model.entities.Role;
+import com.restock.platform.profile.domain.model.entities.Profile;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -33,6 +34,8 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     @DBRef
     private Role role;
 
+    private Profile profile = new Profile();
+
     public User() {
     }
 
@@ -40,6 +43,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.profile = new Profile();
     }
 
     public String getRoleName() {
