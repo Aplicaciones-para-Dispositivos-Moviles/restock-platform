@@ -6,9 +6,10 @@ import com.restock.platform.iam.domain.model.aggregates.User;
 import com.restock.platform.iam.domain.model.commands.SignInCommand;
 import com.restock.platform.iam.domain.model.commands.SignUpCommand;
 import com.restock.platform.iam.domain.services.UserCommandService;
-import com.restock.platform.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
-import com.restock.platform.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.RoleRepository;
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import com.restock.platform.shared.domain.exceptions.InvalidCredentialsException;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +30,15 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final TokenService tokenService;
 
     private final RoleRepository roleRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService, RoleRepository roleRepository) {
+    public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService,
+                                  RoleRepository roleRepository, SequenceGeneratorService sequenceGeneratorService) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
         this.roleRepository = roleRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     /**
@@ -74,6 +78,7 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
         var user = new User(command.username(), hashingService.encode(command.password()), role);
+        user.setId(sequenceGeneratorService.generateSequence("users_sequence"));
         userRepository.save(user);
 
         return userRepository.findByUsername(command.username());
