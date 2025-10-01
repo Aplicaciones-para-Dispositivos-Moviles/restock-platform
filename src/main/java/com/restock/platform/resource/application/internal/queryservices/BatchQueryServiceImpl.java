@@ -3,7 +3,7 @@ package com.restock.platform.resource.application.internal.queryservices;
 import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.queries.*;
 import com.restock.platform.resource.domain.services.BatchQueryService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.BatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

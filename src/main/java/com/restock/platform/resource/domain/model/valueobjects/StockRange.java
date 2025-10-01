@@ -1,8 +1,5 @@
 package com.restock.platform.resource.domain.model.valueobjects;
 
-import jakarta.persistence.Embeddable;
-
-@Embeddable
 public record StockRange(
         int minStock,
         int maxStock

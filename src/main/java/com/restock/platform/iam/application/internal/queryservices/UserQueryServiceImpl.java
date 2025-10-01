@@ -5,7 +5,7 @@ import com.restock.platform.iam.domain.model.queries.GetAllUsersQuery;
 import com.restock.platform.iam.domain.model.queries.GetUserByIdQuery;
 import com.restock.platform.iam.domain.model.queries.GetUserByUsernameQuery;
 import com.restock.platform.iam.domain.services.UserQueryService;
-import com.restock.platform.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,8 +3,9 @@ package com.restock.platform.resource.application.internal.commandservices;
 import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.commands.*;
 import com.restock.platform.resource.domain.services.BatchCommandService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.BatchRepository;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.CustomSupplyRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,10 +15,14 @@ public class BatchCommandServiceImpl implements BatchCommandService {
 
     private final BatchRepository batchRepository;
     private final CustomSupplyRepository customSupplyRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public BatchCommandServiceImpl(BatchRepository batchRepository, CustomSupplyRepository customSupplyRepository) {
+    public BatchCommandServiceImpl(BatchRepository batchRepository,
+                                   CustomSupplyRepository customSupplyRepository,
+                                   SequenceGeneratorService sequenceGeneratorService) {
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
@@ -27,6 +32,7 @@ public class BatchCommandServiceImpl implements BatchCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.customSupplyId()));
 
         var batch = new Batch(command, supply);
+        batch.setId(sequenceGeneratorService.generateSequence("batches_sequence"));
         try {
             batchRepository.save(batch);
         } catch (Exception e) {

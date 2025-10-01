@@ -4,7 +4,8 @@ import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 import com.restock.platform.resource.domain.services.OrderCommandService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.OrderRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,14 +14,18 @@ import java.util.Optional;
 public class OrderCommandServiceImpl implements OrderCommandService {
 
     private final OrderRepository orderRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public OrderCommandServiceImpl(OrderRepository orderRepository) {
+    public OrderCommandServiceImpl(OrderRepository orderRepository,
+                                   SequenceGeneratorService sequenceGeneratorService) {
         this.orderRepository = orderRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
     public Long handle(CreateOrderCommand command) {
         var order = new Order(command);
+        order.setId(sequenceGeneratorService.generateSequence("orders_sequence"));
         try {
             orderRepository.save(order);
             return order.getId();

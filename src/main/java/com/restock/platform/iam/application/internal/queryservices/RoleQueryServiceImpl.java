@@ -4,7 +4,7 @@ import com.restock.platform.iam.domain.model.entities.Role;
 import com.restock.platform.iam.domain.model.queries.GetAllRolesQuery;
 import com.restock.platform.iam.domain.model.queries.GetRoleByNameQuery;
 import com.restock.platform.iam.domain.services.RoleQueryService;
-import com.restock.platform.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.RoleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -6,9 +6,10 @@ import com.restock.platform.resource.domain.model.commands.SeedSuppliesCommand;
 import com.restock.platform.resource.domain.model.commands.CreateSupplyCommand;
 import com.restock.platform.resource.domain.model.entities.Supply;
 import com.restock.platform.resource.domain.services.SupplyCommandService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.SupplyRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.SupplyRepository;
 import com.restock.platform.resource.interfaces.rest.resources.SupplyResource;
 import com.restock.platform.resource.interfaces.rest.transform.CreateSupplyCommandFromResourceAssembler;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,12 @@ import java.util.List;
 public class SupplyCommandServiceImpl implements SupplyCommandService {
 
     private final SupplyRepository supplyRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public SupplyCommandServiceImpl(SupplyRepository supplyRepository) {
+    public SupplyCommandServiceImpl(SupplyRepository supplyRepository,
+                                    SequenceGeneratorService sequenceGeneratorService) {
         this.supplyRepository = supplyRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
@@ -44,6 +48,7 @@ public class SupplyCommandServiceImpl implements SupplyCommandService {
                             cmd.category()
                     );
 
+                    supply.setId(sequenceGeneratorService.generateSequence("supplies_sequence"));
                     supplyRepository.save(supply);
                 }
             }

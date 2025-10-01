@@ -2,8 +2,8 @@ package com.restock.platform.resource.domain.model.aggregates;
 
 import com.restock.platform.resource.domain.model.commands.CreateBatchCommand;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
@@ -13,28 +13,22 @@ import java.time.LocalDate;
  * Represents a batch of supplies registered by a user.
  * A batch contains stock information and expiration date.
  */
-@Entity
+@Document(collection = "batches")
 public class Batch extends AuditableAbstractAggregateRoot<Batch> {
 
     @Getter
     private Long userId;
 
-    @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "custom_supply_id")
-    private CustomSupply customSupply;
+    private Long customSupplyId;
 
     @Getter
-    @Column(columnDefinition = "FLOAT")
     private Double stock;
 
 
     @Getter
-    @Column(columnDefinition = "DATE")
     private LocalDate expirationDate;
 
     protected Batch() {
-        // For JPA
     }
 
     /**
@@ -47,7 +41,7 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
      */
     public Batch(Long userId, CustomSupply customSupply, Double stock, LocalDate expirationDate) {
         this.userId = userId;
-        this.customSupply = customSupply;
+        this.customSupplyId = customSupply != null ? customSupply.getId() : null;
         this.stock = stock;
         this.expirationDate = expirationDate;
     }
@@ -60,6 +54,10 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
      */
     public Batch(CreateBatchCommand command, CustomSupply customSupply) {
         this(command.userId(), customSupply, command.stock(), command.expirationDate());
+    }
+
+    public Long getCustomSupplyId() {
+        return customSupplyId;
     }
     public Batch update(Double newStock, LocalDate newExpirationDate) {
         if (newStock != null) this.stock = newStock;

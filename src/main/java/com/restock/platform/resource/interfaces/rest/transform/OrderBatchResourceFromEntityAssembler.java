@@ -7,8 +7,8 @@ public class OrderBatchResourceFromEntityAssembler {
     public static OrderBatchResource toResourceFromEntity(OrderBatch orderBatch) {
         return new OrderBatchResource(
                 orderBatch.getId(),
-                orderBatch.getOrder(),
-                orderBatch.getBatch(),
+                orderBatch.getOrderId(),
+                orderBatch.getBatchId(),
                 orderBatch.getQuantity(),
                 orderBatch.isAccepted()
         );

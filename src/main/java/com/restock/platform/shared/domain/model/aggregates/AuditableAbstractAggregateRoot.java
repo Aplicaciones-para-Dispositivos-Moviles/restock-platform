@@ -1,36 +1,28 @@
 package com.restock.platform.shared.domain.model.aggregates;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
 /**
  * Abstract class for auditable aggregate roots.
- * It extends AbstractAggregateRoot and is annotated with JPA auditing support.
- * @summary
- * This class serves as a base for aggregate roots that require auditing capabilities.
+ * It extends AbstractAggregateRoot and is annotated with auditing support for MongoDB.
  *
  * @param <T> the type of the aggregate root
  */
 @Getter
-@EntityListeners(AuditingEntityListener.class)
-@MappedSuperclass
-public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> extends AbstractAggregateRoot<T> {
+public abstract class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> extends AbstractAggregateRoot<T> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME")
     private Date createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME")
     private Date updatedAt;
 
     /**
@@ -40,5 +32,9 @@ public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> 
      */
     public void addDomainEvent(Object event) {
         registerEvent(event);
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

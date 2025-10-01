@@ -6,7 +6,7 @@ import com.restock.platform.planning.domain.model.queries.GetAllRecipesQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeByIdQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeSuppliesQuery;
 import com.restock.platform.planning.domain.services.RecipeQueryService;
-import com.restock.platform.planning.infrastructure.persistence.jpa.repositories.RecipeRepository;
+import com.restock.platform.planning.infrastructure.persistence.mongodb.repositories.RecipeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
