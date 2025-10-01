@@ -38,7 +38,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
         var user = userOptional.get();
         var profile = user.getProfile();
-        if (profile == null) profile = new Profile();
+        if (profile == null) profile = Profile.defaultProfile();
 
         profile.setFirstName(command.firstName());
         profile.setLastName(command.lastName());
@@ -60,7 +60,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
         var user = userOptional.get();
         var profile = user.getProfile();
-        if (profile == null) profile = new Profile();
+        if (profile == null) profile = Profile.defaultProfile();
 
         profile.setBusinessName(command.businessName());
         profile.setBusinessAddress(command.businessAddress());
@@ -106,7 +106,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         var user = userOptional.get();
         var profile = user.getProfile();
         if (profile == null) {
-            profile = new Profile();
+            profile = Profile.defaultProfile();
         } else {
             profile.clear();
         }

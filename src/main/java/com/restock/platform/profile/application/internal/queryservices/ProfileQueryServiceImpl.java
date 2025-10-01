@@ -22,7 +22,7 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
         return userRepository.findById(query.userId()).map(user -> {
             var profile = user.getProfile();
             if (profile == null) {
-                profile = new Profile();
+                profile = Profile.defaultProfile();
                 user.setProfile(profile);
                 userRepository.save(user);
             }
