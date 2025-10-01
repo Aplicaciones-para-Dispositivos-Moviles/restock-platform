@@ -3,7 +3,7 @@ package com.restock.platform.resource.application.internal.queryservices;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.queries.*;
 import com.restock.platform.resource.domain.services.CustomSupplyQueryService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.CustomSupplyRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

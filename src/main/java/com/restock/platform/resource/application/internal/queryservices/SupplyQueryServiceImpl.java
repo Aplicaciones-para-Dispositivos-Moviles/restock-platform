@@ -5,7 +5,7 @@ import com.restock.platform.resource.domain.model.queries.GetAllSuppliesQuery;
 import com.restock.platform.resource.domain.model.queries.GetAllSupplyCategoriesQuery;
 import com.restock.platform.resource.domain.model.queries.GetSupplyByIdQuery;
 import com.restock.platform.resource.domain.services.SupplyQueryService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.SupplyRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.SupplyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

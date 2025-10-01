@@ -1,13 +1,13 @@
-package com.restock.platform.resource.infrastructure.persistence.jpa.repositories;
+package com.restock.platform.resource.infrastructure.persistence.mongodb.repositories;
 
 import com.restock.platform.resource.domain.model.entities.Supply;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface SupplyRepository extends JpaRepository<Supply, Long> {
+public interface SupplyRepository extends MongoRepository<Supply, Long> {
 
     Optional<Supply> findByName(String name);
     boolean existsByName(String name);

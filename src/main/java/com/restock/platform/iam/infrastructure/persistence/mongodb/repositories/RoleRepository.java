@@ -1,8 +1,8 @@
-package com.restock.platform.iam.infrastructure.persistence.jpa.repositories;
+package com.restock.platform.iam.infrastructure.persistence.mongodb.repositories;
 
 import com.restock.platform.iam.domain.model.entities.Role;
 import com.restock.platform.iam.domain.model.valueobjects.Roles;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -12,7 +12,7 @@ import java.util.Optional;
  * It extends the JpaRepository interface.
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends MongoRepository<Role, Long> {
 
     /**
      * This method is responsible for finding the role by name.

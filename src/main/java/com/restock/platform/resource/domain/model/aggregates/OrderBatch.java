@@ -3,24 +3,20 @@ package com.restock.platform.resource.domain.model.aggregates;
 import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Represents a Batch included in an Order to Supplier.
  */
-@Entity
+@Document(collection = "order_batches")
 public class OrderBatch extends AuditableAbstractAggregateRoot<OrderBatch> {
 
     @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private Long orderId;
 
     @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "batch_id")
-    private Batch batch;
+    private Long batchId;
 
     @Getter
     private Integer quantity;
@@ -33,8 +29,8 @@ public class OrderBatch extends AuditableAbstractAggregateRoot<OrderBatch> {
     }
 
     public OrderBatch(Order order, Batch batch, Integer quantity, boolean accepted) {
-        this.order = order;
-        this.batch = batch;
+        this.orderId = order != null ? order.getId() : null;
+        this.batchId = batch != null ? batch.getId() : null;
         this.quantity = quantity;
         this.accepted = accepted;
     }

@@ -5,9 +5,10 @@ import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.aggregates.OrderBatch;
 import com.restock.platform.resource.domain.model.commands.CreateOrderBatchCommand;
 import com.restock.platform.resource.domain.services.OrderBatchCommandService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.BatchRepository;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.OrderBatchRepository;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.OrderRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderBatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,15 +19,18 @@ public class OrderBatchCommandServiceImpl implements OrderBatchCommandService {
     private final OrderBatchRepository orderBatchRepository;
     private final OrderRepository orderRepository;
     private final BatchRepository batchRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
     public OrderBatchCommandServiceImpl(
             OrderBatchRepository orderBatchRepository,
             OrderRepository orderRepository,
-            BatchRepository batchRepository
+            BatchRepository batchRepository,
+            SequenceGeneratorService sequenceGeneratorService
     ) {
         this.orderBatchRepository = orderBatchRepository;
         this.orderRepository = orderRepository;
         this.batchRepository = batchRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
@@ -38,6 +42,7 @@ public class OrderBatchCommandServiceImpl implements OrderBatchCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Batch not found with ID: " + command.batchId()));
 
         var orderBatch = new OrderBatch(order, batch, command.quantity(), command.accepted());
+        orderBatch.setId(sequenceGeneratorService.generateSequence("order_batches_sequence"));
 
         try {
             orderBatchRepository.save(orderBatch);

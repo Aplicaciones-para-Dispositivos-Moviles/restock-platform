@@ -2,15 +2,13 @@ package com.restock.platform.iam.domain.model.aggregates;
 
 import com.restock.platform.iam.domain.model.entities.Role;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * User aggregate root
@@ -18,22 +16,21 @@ import java.util.Set;
  *
  * @see AuditableAbstractAggregateRoot
  */
-@Entity
+@Document(collection = "users")
 @Getter
 @Setter
 public class User extends AuditableAbstractAggregateRoot<User> {
 
     @NotBlank
     @Size(max = 50)
-    @Column(unique = true)
+    @Indexed(unique = true)
     private String username;
 
     @NotBlank
     @Size(max = 120)
     private String password;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
+    @DBRef
     private Role role;
 
     public User() {

@@ -1,8 +1,5 @@
 package com.restock.platform.planning.domain.model.valueobjects;
 
-import jakarta.persistence.Embeddable;
-
-@Embeddable
 public record RecipeSupplyQuantity(Double supplyQuantity) {
     public RecipeSupplyQuantity {
         if (supplyQuantity == null || supplyQuantity < 0) {

@@ -1,13 +1,12 @@
 package com.restock.platform.iam.domain.model.entities;
 
 import com.restock.platform.iam.domain.model.valueobjects.Roles;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
-
-import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Role entity
@@ -16,18 +15,15 @@ import java.util.List;
  *     It is used to define the permissions of a user.
  * </p>
  */
-@Entity
+@Document(collection = "roles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @With
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
-    @Enumerated(EnumType.STRING)
     private Roles name;
 
     public Role(Roles name) {

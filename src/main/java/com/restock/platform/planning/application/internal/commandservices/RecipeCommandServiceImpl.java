@@ -5,7 +5,8 @@ import com.restock.platform.planning.domain.model.commands.*;
 import com.restock.platform.planning.domain.model.entities.RecipeSupply;
 import com.restock.platform.planning.domain.model.valueobjects.*;
 import com.restock.platform.planning.domain.services.RecipeCommandService;
-import com.restock.platform.planning.infrastructure.persistence.jpa.repositories.RecipeRepository;
+import com.restock.platform.planning.infrastructure.persistence.mongodb.repositories.RecipeRepository;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,9 +16,12 @@ import java.util.Optional;
 public class RecipeCommandServiceImpl implements RecipeCommandService {
 
     private final RecipeRepository recipeRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public RecipeCommandServiceImpl(RecipeRepository recipeRepository) {
+    public RecipeCommandServiceImpl(RecipeRepository recipeRepository,
+                                    SequenceGeneratorService sequenceGeneratorService) {
         this.recipeRepository = recipeRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
@@ -29,6 +33,9 @@ public class RecipeCommandServiceImpl implements RecipeCommandService {
                 new RecipePrice(command.price()),
                 command.userId()
         );
+
+        var id = sequenceGeneratorService.generateSequence("recipes_sequence");
+        recipe.setId(id);
 
         try {
             recipeRepository.save(recipe);
