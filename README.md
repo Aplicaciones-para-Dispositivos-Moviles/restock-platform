@@ -2,7 +2,7 @@
 
 ## Summary
 
-Restock Platform showcases development using Java with the Spring Boot framework and Spring Data JPA, working on a MySQL database. It also demonstrates how to configure and integrate OpenAPI documentation with Swagger UI.
+Restock Platform showcases development using Java with the Spring Boot framework and Spring Data MongoDB, working on a MongoDB database. It also demonstrates how to configure and integrate OpenAPI documentation with Swagger UI.
 
 ## Features
 
@@ -10,9 +10,9 @@ Restock Platform showcases development using Java with the Spring Boot framework
 - OpenAPI Documentation
 - Swagger UI
 - Spring Boot Framework
-- Spring Data JPA
+- Spring Data MongoDB
 - Validation
-- MySQL Database
+- MongoDB Database
 - Domain-Driven Design
 
 ## Bounded Contexts
@@ -111,7 +111,7 @@ For further reference, please consider the following sections:
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.0/maven-plugin)
 * [Create an OCI image](https://docs.spring.io/spring-boot/3.5.0/maven-plugin/build-image.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.5.0/reference/data/sql.html#data.sql.jpa-and-spring-data)
+* [Spring Data MongoDB](https://docs.spring.io/spring-boot/3.5.0/reference/data/nosql.html#data.nosql.mongodb)
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.5.0/reference/using/devtools.html)
 * [Validation](https://docs.spring.io/spring-boot/3.5.0/reference/io/validation.html)
 * [Spring Web](https://docs.spring.io/spring-boot/3.5.0/reference/web/servlet.html)
@@ -120,8 +120,7 @@ For further reference, please consider the following sections:
 
 The following guides illustrate how to use some features concretely:
 
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
+* [Accessing Data with MongoDB](https://spring.io/guides/gs/accessing-data-mongodb/)
 * [Validation](https://spring.io/guides/gs/validating-form-input/)
 * [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
 * [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)

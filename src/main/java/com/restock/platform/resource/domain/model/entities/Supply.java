@@ -2,9 +2,8 @@ package com.restock.platform.resource.domain.model.entities;
 
 import com.restock.platform.resource.domain.model.valueobjects.UnitMeasurement;
 import com.restock.platform.shared.domain.model.entities.AuditableModel;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
 import lombok.Getter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /*
         "name": "Pollo Entero",
@@ -14,7 +13,7 @@ import lombok.Getter;
         "unitAbbreviation": "u",
         "category": "Carnes"
  */
-@Entity
+@Document(collection = "supplies")
 public class Supply extends AuditableModel {
 
     @Getter
@@ -27,7 +26,6 @@ public class Supply extends AuditableModel {
     private Boolean perishable;
 
     @Getter
-    @Embedded
     private UnitMeasurement unitMeasurement;
 
     @Getter

@@ -4,8 +4,8 @@ import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import java.time.LocalDate;
  *
  * Represents a purchase order from an admin restaurant to a supplier.
  */
-@Entity
+@Document(collection = "orders")
 public class Order extends AuditableAbstractAggregateRoot<Order> {
 
     @Getter
@@ -25,25 +25,21 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
     private Long supplierId;
 
     @Getter
-    @Column(columnDefinition = "DATE")
     private LocalDate date;
 
     @Getter
     private Integer requestedProductsCount;
 
     @Getter
-    @Column(columnDefinition = "DECIMAL(10,2)")
     private BigDecimal totalPrice;
 
     @Getter
     private boolean partiallyAccepted;
 
     @Getter
-    @Enumerated(EnumType.STRING)
     private OrderToSupplierState state;
 
     @Getter
-    @Enumerated(EnumType.STRING)
     private OrderToSupplierSituation situation;
 
     protected Order() {

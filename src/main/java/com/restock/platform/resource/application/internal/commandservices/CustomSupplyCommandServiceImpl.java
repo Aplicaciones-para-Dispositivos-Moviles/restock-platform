@@ -5,7 +5,8 @@ import com.restock.platform.resource.domain.model.commands.CreateCustomSupplyCom
 import com.restock.platform.resource.domain.model.commands.DeleteCustomSupplyCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateSupplyCommand;
 import com.restock.platform.resource.domain.services.CustomSupplyCommandService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.CustomSupplyRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
+import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,14 +15,18 @@ import java.util.Optional;
 public class CustomSupplyCommandServiceImpl implements CustomSupplyCommandService {
 
     private final CustomSupplyRepository customSupplyRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public CustomSupplyCommandServiceImpl(CustomSupplyRepository customSupplyRepository) {
+    public CustomSupplyCommandServiceImpl(CustomSupplyRepository customSupplyRepository,
+                                          SequenceGeneratorService sequenceGeneratorService) {
         this.customSupplyRepository = customSupplyRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     @Override
     public Long handle(CreateCustomSupplyCommand command) {
         var supply = new CustomSupply(command);
+        supply.setId(sequenceGeneratorService.generateSequence("custom_supplies_sequence"));
         try {
             customSupplyRepository.save(supply);
         } catch (Exception e) {

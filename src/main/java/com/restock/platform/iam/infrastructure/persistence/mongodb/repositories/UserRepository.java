@@ -1,7 +1,7 @@
-package com.restock.platform.iam.infrastructure.persistence.jpa.repositories;
+package com.restock.platform.iam.infrastructure.persistence.mongodb.repositories;
 
 import com.restock.platform.iam.domain.model.aggregates.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.Optional;
  * It extends the JpaRepository interface.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>
+public interface UserRepository extends MongoRepository<User, Long>
 {
     /**
      * This method is responsible for finding the user by username.

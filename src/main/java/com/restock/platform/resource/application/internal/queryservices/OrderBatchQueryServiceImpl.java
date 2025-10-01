@@ -3,7 +3,7 @@ package com.restock.platform.resource.application.internal.queryservices;
 import com.restock.platform.resource.domain.model.aggregates.OrderBatch;
 import com.restock.platform.resource.domain.model.queries.GetAllBatchesByOrderId;
 import com.restock.platform.resource.domain.services.OrderBatchQueryService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.OrderBatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderBatchRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
