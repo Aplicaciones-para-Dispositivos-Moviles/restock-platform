@@ -31,23 +31,28 @@ public class Profile {
     private List<BusinessCategoryItem> businessCategories = new ArrayList<>();
 
     public Profile() {
+        this.applyDefaultValues();
+    }
+
+    public static Profile defaultProfile() {
+        return new Profile();
+    }
+
+    private void applyDefaultValues() {
+        this.firstName = "";
+        this.lastName = "";
+        this.email = "";
+        this.phone = "";
+        this.address = "";
+        this.country = "";
+        this.avatar = "";
+        this.businessName = "";
+        this.businessAddress = "";
+        this.description = "";
+        this.businessCategories = new ArrayList<>();
     }
 
     public void clear() {
-        this.firstName = null;
-        this.lastName = null;
-        this.email = null;
-        this.phone = null;
-        this.address = null;
-        this.country = null;
-        this.avatar = null;
-        this.businessName = null;
-        this.businessAddress = null;
-        this.description = null;
-        if (this.businessCategories != null) {
-            this.businessCategories.clear();
-        } else {
-            this.businessCategories = new ArrayList<>();
-        }
+        this.applyDefaultValues();
     }
 }

@@ -34,7 +34,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     @DBRef
     private Role role;
 
-    private Profile profile = new Profile();
+    private Profile profile = Profile.defaultProfile();
 
     public User() {
     }
@@ -43,7 +43,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.username = username;
         this.password = password;
         this.role = role;
-        this.profile = new Profile();
+        this.profile = Profile.defaultProfile();
     }
 
     public String getRoleName() {
