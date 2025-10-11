@@ -1,7 +1,7 @@
 package com.restock.platform.iam.infrastructure.authorization.sfs.services;
 
 import com.restock.platform.iam.infrastructure.authorization.sfs.model.UserDetailsImpl;
-import com.restock.platform.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

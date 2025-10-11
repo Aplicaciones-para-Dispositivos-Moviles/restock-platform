@@ -8,13 +8,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @Profile("prod")
 public class CorsConfigProd implements WebMvcConfigurer {
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/v1/**")
-                .allowedOrigins("*") // Replace with our production frontend URL
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedOrigins("*")                               // ok si no hay cookies
+                .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(false);                         // <- clave
     }
 }

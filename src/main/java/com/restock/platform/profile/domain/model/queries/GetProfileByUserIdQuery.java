@@ -1,0 +1,4 @@
+package com.restock.platform.profile.domain.model.queries;
+
+public record GetProfileByUserIdQuery(Long userId) {
+}

@@ -2,7 +2,7 @@ package com.restock.platform.resource.application.internal.queryservices;
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.queries.*;
 import com.restock.platform.resource.domain.services.OrderQueryService;
-import com.restock.platform.resource.infrastructure.persistence.jpa.repositories.OrderRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

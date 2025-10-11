@@ -4,10 +4,10 @@ import com.restock.platform.resource.domain.model.commands.CreateCustomSupplyCom
 import com.restock.platform.resource.domain.model.valueobjects.StockRange;
 import com.restock.platform.resource.domain.model.valueobjects.Price;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "custom_supplies")
 public class CustomSupply extends AuditableAbstractAggregateRoot<CustomSupply> {
 
     @Getter
@@ -17,19 +17,9 @@ public class CustomSupply extends AuditableAbstractAggregateRoot<CustomSupply> {
     private Long supplyId;
 
     @Getter
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "min", column = @Column(name = "stock_min", columnDefinition = "FLOAT")),
-            @AttributeOverride(name = "max", column = @Column(name = "stock_max", columnDefinition = "FLOAT"))
-    })
     private StockRange stockRange;
 
     @Getter
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "amount", column = @Column(name = "price_amount", columnDefinition = "FLOAT")),
-            @AttributeOverride(name = "currency", column = @Column(name = "currency", length = 3))
-    })
     private Price price;
 
     @Getter

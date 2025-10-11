@@ -11,38 +11,27 @@
 
 # Step 1: Build the application using Maven
 
-# Use a lightweight OpenJDK 24 base image
+# ---- Build ----
 FROM maven:3.9.9-eclipse-temurin-24 AS build
-# Set the active profile for the Spring Boot application
-ENV SPRING_PROFILES_ACTIVE=prod
-# Set the working directory inside the container
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline
-# Copy the Maven project files into the container
+RUN mvn -q -DskipTests dependency:go-offline
 COPY src ./src
-# Build the application
-RUN mvn package -DskipTests
+RUN mvn -q -DskipTests package
 
-# Step 2: Create a runtime image
-# Copy the Spring Boot JAR file into the container
-FROM eclipse-temurin:24-jre AS runtime
+# ---- Runtime ----
+FROM eclipse-temurin:24-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-
-# Step 3: Configure and run the application
-# Expose the port your Spring Boot application listens on (default is 8080)
 EXPOSE 8080
-# Define the command to run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
+
 
 # Note: The application will run with the 'prod' profile as set in the build stage.
 # This Dockerfile is designed to be used in a CI/CD pipeline or for local development.
 # It is necessary to define the following environment variables in the hosting provider for the application to
 # run correctly in the Production environment:
-# - DATABASE_NAME: The name of the database to connect to.
-# - DATABASE_USER: The username for the database connection.
-# - DATABASE_PASSWORD: The password for the database connection.
-# - DATABASE_URL: The URL of the database to connect to.
+# - MONGODB_URI: The MongoDB connection URI (e.g. mongodb://localhost:27017).
+# - MONGODB_DATABASE: The MongoDB database name (defaults to restock-bd).
 # - PORT: The port on which the application will run (default is 8080).
 # - SPRING_PROFILES_ACTIVE: The active Spring profile (Must be 'prod' to use the runtime configuration).
