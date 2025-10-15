@@ -2,6 +2,7 @@ package com.restock.platform.planning.application.internal.queryservices;
 
 import com.restock.platform.planning.domain.model.aggregates.Recipe;
 import com.restock.platform.planning.domain.model.entities.RecipeSupply;
+import com.restock.platform.planning.domain.model.queries.GetAllRecipesByUserIdQuery;
 import com.restock.platform.planning.domain.model.queries.GetAllRecipesQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeByIdQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeSuppliesQuery;
@@ -36,5 +37,10 @@ public class RecipeQueryServiceImpl implements RecipeQueryService {
         return recipeRepository.findById(query.recipeId())
                 .map(Recipe::getSupplies)
                 .orElse(List.of());
+    }
+
+    @Override
+    public List<Recipe> handle(GetAllRecipesByUserIdQuery query) {
+        return recipeRepository.findRecipesByUserId(query.userId());
     }
 }

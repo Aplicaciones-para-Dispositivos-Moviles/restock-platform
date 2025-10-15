@@ -186,4 +186,19 @@ public class RecipesController {
         var resourceResponse = RecipeResourceFromEntityAssembler.toResourceFromEntity(recipe.get());
         return ResponseEntity.ok(resourceResponse);
     }
+
+    @GetMapping("/{userId}/recipes")
+    @Operation(summary = "Get All Recipes of User Serg ")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode = "201", description = "Supplies added successfully"),
+            @ApiResponse(responseCode = "404", description = "Recipe not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+    })
+    public ResponseEntity<List<RecipeResource>> getRecipesOfUser(@PathVariable Integer userId){
+        var getAllRecipesByUserIdQuery = new GetAllRecipesByUserIdQuery(userId);
+        var recipes = recipeQueryService.handle(getAllRecipesByUserIdQuery);
+        var recipesResources = recipes.stream().map(RecipeResourceFromEntityAssembler::toResourceFromEntity).toList();
+        return ResponseEntity.ok(recipesResources);
+    }
+
 }
