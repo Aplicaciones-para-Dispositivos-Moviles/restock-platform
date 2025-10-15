@@ -2,6 +2,7 @@ package com.restock.platform.planning.domain.services;
 
 import com.restock.platform.planning.domain.model.aggregates.Recipe;
 import com.restock.platform.planning.domain.model.entities.RecipeSupply;
+import com.restock.platform.planning.domain.model.queries.GetAllRecipesByUserIdQuery;
 import com.restock.platform.planning.domain.model.queries.GetAllRecipesQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeByIdQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeSuppliesQuery;
@@ -15,5 +16,6 @@ public interface RecipeQueryService {
     List<Recipe> handle(GetAllRecipesQuery query);
 
     List<RecipeSupply> handle(GetRecipeSuppliesQuery query);
+    List<Recipe> handle(GetAllRecipesByUserIdQuery query);
 
 }
