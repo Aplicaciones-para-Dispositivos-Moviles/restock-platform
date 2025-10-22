@@ -7,6 +7,6 @@ public record BatchResource(
         Long userId,
         Long customSupplyId,
         double stock,
-        LocalDate expirationDate
-) {
-}
+        LocalDate expirationDate,
+        CustomSupplyResource customSupply
+) {}
