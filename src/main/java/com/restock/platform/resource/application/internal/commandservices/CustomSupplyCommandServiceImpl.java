@@ -3,7 +3,7 @@ package com.restock.platform.resource.application.internal.commandservices;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateCustomSupplyCommand;
 import com.restock.platform.resource.domain.model.commands.DeleteCustomSupplyCommand;
-import com.restock.platform.resource.domain.model.commands.UpdateSupplyCommand;
+import com.restock.platform.resource.domain.model.commands.UpdateCustomSupplyCommand;
 import com.restock.platform.resource.domain.services.CustomSupplyCommandService;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
@@ -37,12 +37,12 @@ public class CustomSupplyCommandServiceImpl implements CustomSupplyCommandServic
     }
 
     @Override
-    public Optional<CustomSupply> handle(UpdateSupplyCommand command) {
+    public Optional<CustomSupply> handle(UpdateCustomSupplyCommand command) {
         var supply = customSupplyRepository.findById(command.supplyId())
                 .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.supplyId()));
 
         try {
-            var updatedSupply = supply.update(command.stockRange(), command.price(), command.description());
+            var updatedSupply = supply.update(command.stockRange(), command.price(), command.description(), command.unitMeasurement());
             customSupplyRepository.save(updatedSupply);
             return Optional.of(updatedSupply);
         } catch (Exception e) {

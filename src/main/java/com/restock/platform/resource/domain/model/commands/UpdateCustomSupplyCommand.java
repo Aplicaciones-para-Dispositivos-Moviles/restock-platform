@@ -2,14 +2,16 @@ package com.restock.platform.resource.domain.model.commands;
 
 import com.restock.platform.resource.domain.model.valueobjects.StockRange;
 import com.restock.platform.resource.domain.model.valueobjects.Price;
+import com.restock.platform.resource.domain.model.valueobjects.UnitMeasurement;
 
-public record UpdateSupplyCommand(
+public record UpdateCustomSupplyCommand(
         Long supplyId,
         String description,
         StockRange stockRange,
-        Price price
+        Price price,
+        UnitMeasurement unitMeasurement
 ) {
-    public UpdateSupplyCommand {
+    public UpdateCustomSupplyCommand {
         if (supplyId == null || supplyId <= 0)
             throw new IllegalArgumentException("Supply ID must be a positive number.");
 
@@ -21,5 +23,8 @@ public record UpdateSupplyCommand(
 
         if (price == null)
             throw new IllegalArgumentException("Price must not be null.");
+
+        if (unitMeasurement == null)
+            throw new IllegalArgumentException("Unit measurement must not be null.");
     }
 }

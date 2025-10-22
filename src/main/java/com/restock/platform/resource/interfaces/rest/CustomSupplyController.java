@@ -6,10 +6,10 @@ import com.restock.platform.resource.domain.services.CustomSupplyCommandService;
 import com.restock.platform.resource.domain.services.CustomSupplyQueryService;
 import com.restock.platform.resource.interfaces.rest.resources.CreateCustomSupplyResource;
 import com.restock.platform.resource.interfaces.rest.resources.CustomSupplyResource;
-import com.restock.platform.resource.interfaces.rest.resources.UpdateSupplyResource;
+import com.restock.platform.resource.interfaces.rest.resources.UpdateCustomSupplyResource;
 import com.restock.platform.resource.interfaces.rest.transform.CreateCustomSupplyCommandFromResourceAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.CustomSupplyResourceFromEntityAssembler;
-import com.restock.platform.resource.interfaces.rest.transform.UpdateSupplyCommandFromResourceAssembler;
+import com.restock.platform.resource.interfaces.rest.transform.UpdateCustomSupplyCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -79,8 +79,8 @@ public class CustomSupplyController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update custom supply")
-    public ResponseEntity<CustomSupplyResource> updateSupply(@PathVariable Long id, @RequestBody UpdateSupplyResource resource) {
-        var command = UpdateSupplyCommandFromResourceAssembler.toCommandFromResource(id, resource);
+    public ResponseEntity<CustomSupplyResource> updateSupply(@PathVariable Long id, @RequestBody UpdateCustomSupplyResource resource) {
+        var command = UpdateCustomSupplyCommandFromResourceAssembler.toCommandFromResource(id, resource);
         var updated = customSupplyCommandService.handle(command);
         if (updated.isEmpty()) return ResponseEntity.notFound().build();
 

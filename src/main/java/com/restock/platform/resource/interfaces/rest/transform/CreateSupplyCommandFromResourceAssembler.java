@@ -11,7 +11,6 @@ public class CreateSupplyCommandFromResourceAssembler {
                 resource.name(),
                 resource.description(),
                 resource.perishable(),
-                new UnitMeasurement(resource.unitName(), resource.unitAbbreviation()),
                 resource.category()
         );
     }

@@ -3,80 +3,60 @@
     "name": "Papa Amarilla",
     "description": "Papa amarilla de alta calidad para consumo directo",
     "perishable": true,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Tubérculos"
   },
   {
     "name": "Cebolla Roja",
     "description": "Cebolla roja fresca para cocina",
     "perishable": true,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Verduras"
   },
   {
     "name": "Pollo Entero",
     "description": "Pollo fresco sin vísceras",
     "perishable": true,
-    "unitName": "Unidad",
-    "unitAbbreviation": "u",
     "category": "Carnes"
   },
   {
     "name": "Aceite Vegetal",
     "description": "Aceite comestible en botella de 1 litro",
     "perishable": false,
-    "unitName": "Litro",
-    "unitAbbreviation": "l",
     "category": "Abarrotes"
   },
   {
     "name": "Arroz Extra",
     "description": "Arroz largo extra para todo tipo de preparación",
     "perishable": false,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Granos"
   },
   {
     "name": "Leche Evaporada",
     "description": "Leche evaporada en lata de 410 ml",
     "perishable": false,
-    "unitName": "Unidad",
-    "unitAbbreviation": "u",
     "category": "Lácteos"
   },
   {
     "name": "Zanahoria",
     "description": "Zanahoria fresca ideal para ensaladas y sopas",
     "perishable": true,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Verduras"
   },
   {
     "name": "Tomate Italiano",
     "description": "Tomate para salsas y cocina en general",
     "perishable": true,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Verduras"
   },
   {
     "name": "Harina sin preparar",
     "description": "Harina de trigo sin aditivos, ideal para panadería",
     "perishable": false,
-    "unitName": "Kilogramo",
-    "unitAbbreviation": "kg",
     "category": "Panadería"
   },
   {
     "name": "Huevo de Gallina",
     "description": "Huevo fresco categoría A",
     "perishable": true,
-    "unitName": "Docena",
-    "unitAbbreviation": "dz",
     "category": "Huevos"
   }
 ]
