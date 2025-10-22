@@ -1,12 +1,16 @@
 package com.restock.platform.resource.domain.model.valueobjects;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
 /**
  * Value Object representing a unit of measurement.
  */
 public record UnitMeasurement(
+        @Getter
         String unitName,
+        @Getter
         String unitAbbreviaton
 ) {
 

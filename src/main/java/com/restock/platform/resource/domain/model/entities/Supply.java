@@ -29,7 +29,6 @@ public class Supply extends AuditableModel {
     private String category;
 
     protected Supply() {
-        // Para JPA
     }
 
     public Supply(String name, String description, Boolean perishable, String category) {

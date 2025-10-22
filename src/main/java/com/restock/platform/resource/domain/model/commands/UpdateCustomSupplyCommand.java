@@ -5,6 +5,7 @@ import com.restock.platform.resource.domain.model.valueobjects.Price;
 import com.restock.platform.resource.domain.model.valueobjects.UnitMeasurement;
 
 public record UpdateCustomSupplyCommand(
+        Long id,
         Long supplyId,
         String description,
         StockRange stockRange,
@@ -12,8 +13,10 @@ public record UpdateCustomSupplyCommand(
         UnitMeasurement unitMeasurement
 ) {
     public UpdateCustomSupplyCommand {
-        if (supplyId == null || supplyId <= 0)
-            throw new IllegalArgumentException("Supply ID must be a positive number.");
+        if (id == null)
+            throw new IllegalArgumentException("Custom Supply ID required.");
+        if (supplyId == null)
+            throw new IllegalArgumentException("Supply ID required.");
 
         if (description == null || description.isBlank())
             throw new IllegalArgumentException("Description must not be null or blank.");

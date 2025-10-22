@@ -1,6 +1,7 @@
 package com.restock.platform.resource.interfaces.rest.resources;
 
 public record UpdateCustomSupplyResource(
+        Long supplyId,
         String description,
         int minStock,
         int maxStock,
@@ -10,6 +11,8 @@ public record UpdateCustomSupplyResource(
 
 ) {
     public UpdateCustomSupplyResource {
+        if (supplyId == null)
+            throw new IllegalArgumentException("Supply Id is required");
         if (description == null || description.isBlank())
             throw new IllegalArgumentException("Description is required");
         if (minStock < 0)

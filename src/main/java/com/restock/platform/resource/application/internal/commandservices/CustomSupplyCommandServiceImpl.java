@@ -38,13 +38,13 @@ public class CustomSupplyCommandServiceImpl implements CustomSupplyCommandServic
 
     @Override
     public Optional<CustomSupply> handle(UpdateCustomSupplyCommand command) {
-        var supply = customSupplyRepository.findById(command.supplyId())
-                .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.supplyId()));
+        var customSupply = customSupplyRepository.findById(command.id())
+                .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.id()));
 
         try {
-            var updatedSupply = supply.update(command.stockRange(), command.price(), command.description(), command.unitMeasurement());
-            customSupplyRepository.save(updatedSupply);
-            return Optional.of(updatedSupply);
+            var updatedCustomSupply = customSupply.update(command.supplyId(),command.stockRange(), command.price(), command.description(), command.unitMeasurement());
+            customSupplyRepository.save(updatedCustomSupply);
+            return Optional.of(updatedCustomSupply);
         } catch (Exception e) {
             throw new RuntimeException("Error updating supply: " + e.getMessage(), e);
         }

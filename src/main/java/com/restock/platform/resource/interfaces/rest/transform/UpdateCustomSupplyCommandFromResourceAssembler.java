@@ -9,9 +9,10 @@ import com.restock.platform.resource.interfaces.rest.resources.UpdateCustomSuppl
 import java.util.Currency;
 
 public class UpdateCustomSupplyCommandFromResourceAssembler {
-    public static UpdateCustomSupplyCommand toCommandFromResource(Long supplyId, UpdateCustomSupplyResource resource) {
+    public static UpdateCustomSupplyCommand toCommandFromResource(Long id, UpdateCustomSupplyResource resource) {
         return new UpdateCustomSupplyCommand(
-                supplyId,
+                id,
+                resource.supplyId(),
                 resource.description(),
                 new StockRange(resource.minStock(), resource.maxStock()),
                 new Price(resource.price(), Currency.getInstance("USD")),
