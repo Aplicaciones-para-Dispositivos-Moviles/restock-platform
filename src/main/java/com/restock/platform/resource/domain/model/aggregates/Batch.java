@@ -3,6 +3,7 @@ package com.restock.platform.resource.domain.model.aggregates;
 import com.restock.platform.resource.domain.model.commands.CreateBatchCommand;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -24,9 +25,12 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
     @Getter
     private Double stock;
 
-
     @Getter
     private LocalDate expirationDate;
+
+    @Getter
+    @Setter
+    private CustomSupply customSupply;
 
     protected Batch() {
     }

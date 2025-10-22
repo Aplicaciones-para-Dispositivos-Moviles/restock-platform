@@ -26,20 +26,15 @@ public class Supply extends AuditableModel {
     private Boolean perishable;
 
     @Getter
-    private UnitMeasurement unitMeasurement;
-
-    @Getter
     private String category;
 
     protected Supply() {
-        // Para JPA
     }
 
-    public Supply(String name, String description, Boolean perishable, UnitMeasurement unitMeasurement, String category) {
+    public Supply(String name, String description, Boolean perishable, String category) {
         this.name = name;
         this.description = description;
         this.perishable = perishable;
-        this.unitMeasurement = unitMeasurement;
         this.category = category;
     }
 }

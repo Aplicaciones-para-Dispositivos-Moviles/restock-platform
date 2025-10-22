@@ -3,7 +3,7 @@ package com.restock.platform.resource.application.internal.commandservices;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateCustomSupplyCommand;
 import com.restock.platform.resource.domain.model.commands.DeleteCustomSupplyCommand;
-import com.restock.platform.resource.domain.model.commands.UpdateSupplyCommand;
+import com.restock.platform.resource.domain.model.commands.UpdateCustomSupplyCommand;
 import com.restock.platform.resource.domain.services.CustomSupplyCommandService;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
@@ -37,14 +37,14 @@ public class CustomSupplyCommandServiceImpl implements CustomSupplyCommandServic
     }
 
     @Override
-    public Optional<CustomSupply> handle(UpdateSupplyCommand command) {
-        var supply = customSupplyRepository.findById(command.supplyId())
-                .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.supplyId()));
+    public Optional<CustomSupply> handle(UpdateCustomSupplyCommand command) {
+        var customSupply = customSupplyRepository.findById(command.id())
+                .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.id()));
 
         try {
-            var updatedSupply = supply.update(command.stockRange(), command.price(), command.description());
-            customSupplyRepository.save(updatedSupply);
-            return Optional.of(updatedSupply);
+            var updatedCustomSupply = customSupply.update(command.supplyId(),command.stockRange(), command.price(), command.description(), command.unitMeasurement());
+            customSupplyRepository.save(updatedCustomSupply);
+            return Optional.of(updatedCustomSupply);
         } catch (Exception e) {
             throw new RuntimeException("Error updating supply: " + e.getMessage(), e);
         }
