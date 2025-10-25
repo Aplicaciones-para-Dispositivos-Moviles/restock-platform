@@ -1,6 +1,7 @@
 package com.restock.platform.resource.domain.model.aggregates;
 
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
+import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
@@ -9,12 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Order aggregate root.
- *
- * Represents a purchase order from an admin restaurant to a supplier.
- */
 @Document(collection = "orders")
 public class Order extends AuditableAbstractAggregateRoot<Order> {
 
@@ -28,10 +26,10 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
     private LocalDate date;
 
     @Getter
-    private Integer requestedProductsCount;
+    private Integer requestedProductsCount = 0;
 
     @Getter
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 
     @Getter
     private boolean partiallyAccepted;
@@ -42,61 +40,56 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
     @Getter
     private OrderToSupplierSituation situation;
 
-    protected Order() {
-        // For JPA
-    }
+    @Getter
+    private List<OrderBatchItem> batchItems = new ArrayList<>();
 
-    /**
-     * Full constructor for an Order.
-     */
-    public Order(Long adminRestaurantId, Long supplierId, LocalDate date, Integer requestedProductsCount,
-                 BigDecimal totalPrice, boolean partiallyAccepted,
-                 OrderToSupplierState state, OrderToSupplierSituation situation) {
-        this.adminRestaurantId = adminRestaurantId;
-        this.supplierId = supplierId;
-        this.date = date;
-        this.requestedProductsCount = requestedProductsCount;
-        this.totalPrice = totalPrice;
-        this.partiallyAccepted = partiallyAccepted;
-        this.state = state;
-        this.situation = situation;
-    }
+    protected Order() { }
 
-    /**
-     * Constructs an Order from a CreateOrderCommand.
-     */
     public Order(CreateOrderCommand command) {
-        if (command.totalPrice() == null) {
-            throw new IllegalArgumentException("totalPrice cannot be null");
-        }
-        if (command.requestedProductsCount() == null) {
-            throw new IllegalArgumentException("requestedProductsCount cannot be null");
-        }
-
         this.adminRestaurantId = command.adminRestaurantId();
         this.supplierId = command.supplierId();
-        this.date = command.date();
-        this.requestedProductsCount = command.requestedProductsCount();
-        this.totalPrice = command.totalPrice();
+        this.date = LocalDate.now();
         this.partiallyAccepted = false;
         this.state = OrderToSupplierState.ON_HOLD;
         this.situation = OrderToSupplierSituation.PENDING;
     }
 
+    public void recalculateTotals() {
+        this.requestedProductsCount = batchItems.stream()
+                .mapToInt(item -> item.getQuantity().intValue())
+                .sum();
 
-    /**
-     * Updates the state and situation of the order.
-     */
+        this.totalPrice = batchItems.stream()
+                .map(OrderBatchItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Total price cannot be null or negative.");
+        }
+        this.totalPrice = totalPrice;
+    }
+
+    public void setRequestedProductsCount(Integer requestedProductsCount) {
+        if (requestedProductsCount == null || requestedProductsCount < 0) {
+            throw new IllegalArgumentException("Requested products count cannot be null or negative.");
+        }
+        this.requestedProductsCount = requestedProductsCount;
+    }
+
     public Order update(OrderToSupplierState newState, OrderToSupplierSituation newSituation) {
         if (newState != null) this.state = newState;
         if (newSituation != null) this.situation = newSituation;
         return this;
     }
 
-    public Order updateState(OrderToSupplierState newState, OrderToSupplierSituation newSituation) {
-        if (newState != null) this.state = newState;
-        if (newSituation != null) this.situation = newSituation;
-        return this;
+    public void addBatchItem(OrderBatchItem item) {
+        if (item == null) throw new IllegalArgumentException("OrderBatchItem cannot be null");
+        this.batchItems.add(item);
     }
 
+    public void finalizeOrderTotals() {
+        recalculateTotals();
+    }
 }

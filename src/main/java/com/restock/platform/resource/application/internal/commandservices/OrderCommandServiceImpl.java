@@ -1,45 +1,115 @@
 package com.restock.platform.resource.application.internal.commandservices;
 
+import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.aggregates.Order;
+import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
+import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.domain.services.OrderCommandService;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
 import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderCommandServiceImpl implements OrderCommandService {
 
     private final OrderRepository orderRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final BatchRepository batchRepository;
+    private final CustomSupplyRepository customSupplyRepository;
 
     public OrderCommandServiceImpl(OrderRepository orderRepository,
-                                   SequenceGeneratorService sequenceGeneratorService) {
+                                   SequenceGeneratorService sequenceGeneratorService,
+                                   BatchRepository batchRepository,
+                                   CustomSupplyRepository customSupplyRepository) {
         this.orderRepository = orderRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.batchRepository = batchRepository;
+        this.customSupplyRepository = customSupplyRepository;
     }
 
     @Override
     public Long handle(CreateOrderCommand command) {
         var order = new Order(command);
         order.setId(sequenceGeneratorService.generateSequence("orders_sequence"));
-        try {
-            orderRepository.save(order);
-            return order.getId();
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving order: " + e.getMessage(), e);
+
+        if (command.batchItems() != null && !command.batchItems().isEmpty()) {
+
+            var combinedItems = command.batchItems().stream()
+                    .collect(Collectors.toMap(
+                            OrderBatchItem::getBatchId,
+                            item -> new OrderBatchItem(
+                                    item.getBatchId(),
+                                    item.getQuantity(),
+                                    item.isAccept()
+                            ),
+                            (existing, incoming) -> {
+                                existing.setQuantity(existing.getQuantity() + incoming.getQuantity());
+                                existing.setAccept(existing.isAccept() || incoming.isAccept());
+                                return existing;
+                            }
+                    ));
+
+            var batchIds = combinedItems.keySet().stream().toList();
+            var existingBatches = batchRepository.findAllById(batchIds);
+
+            if (existingBatches.size() != batchIds.size()) {
+                throw new IllegalArgumentException("One or more batches do not exist.");
+            }
+
+            boolean allBelongToSupplier = existingBatches.stream()
+                    .allMatch(batch -> batch.getUserId().equals(command.supplierId()));
+
+            if (!allBelongToSupplier) {
+                throw new IllegalArgumentException("Some batches do not belong to supplier id: " + command.supplierId());
+            }
+
+            double totalPrice = 0.0;
+            double totalRequested = 0.0;
+
+            for (var item : combinedItems.values()) {
+                var batch = existingBatches.stream()
+                        .filter(b -> b.getId().equals(item.getBatchId()))
+                        .findFirst()
+                        .orElseThrow();
+
+                var customSupply = customSupplyRepository.findById(batch.getCustomSupplyId())
+                        .orElseThrow(() -> new IllegalArgumentException("CustomSupply not found for batch " + batch.getId()));
+
+                batch.setCustomSupply(customSupply);
+                item.setBatch(batch);
+
+                double pricePerUnit = customSupply.getPrice().amount();
+                totalPrice += pricePerUnit * item.getQuantity();
+                totalRequested += item.getQuantity();
+
+                order.addBatchItem(item);
+            }
+
+            order.setTotalPrice(BigDecimal.valueOf(totalPrice));
+            order.setRequestedProductsCount((int) totalRequested);
         }
+
+        order.finalizeOrderTotals();
+        orderRepository.save(order);
+        return order.getId();
     }
+
 
     @Override
     public Optional<Order> handle(UpdateOrderStateCommand command) {
         var order = orderRepository.findById(command.orderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + command.orderId()));
 
-        order.updateState(command.newState(), command.newSituation());
+        order.update(command.newState(), command.newSituation());
 
         orderRepository.save(order);
         return Optional.of(order);

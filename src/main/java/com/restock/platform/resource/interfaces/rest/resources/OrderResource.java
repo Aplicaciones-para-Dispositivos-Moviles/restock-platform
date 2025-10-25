@@ -5,6 +5,7 @@ import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public record OrderResource(
         Long id,
@@ -15,6 +16,7 @@ public record OrderResource(
         BigDecimal totalPrice,
         boolean partiallyAccepted,
         OrderToSupplierState state,
-        OrderToSupplierSituation situation
+        OrderToSupplierSituation situation,
+        List<OrderBatchItemResource> batchItems
 ) {
 }
