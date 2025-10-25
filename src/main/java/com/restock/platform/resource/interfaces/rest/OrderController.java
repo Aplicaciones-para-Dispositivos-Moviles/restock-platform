@@ -1,7 +1,5 @@
 package com.restock.platform.resource.interfaces.rest;
 
-import com.restock.platform.resource.domain.model.aggregates.Order;
-import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 import com.restock.platform.resource.domain.model.queries.GetAllOrdersQuery;
 import com.restock.platform.resource.domain.model.queries.GetOrderByIdQuery;
