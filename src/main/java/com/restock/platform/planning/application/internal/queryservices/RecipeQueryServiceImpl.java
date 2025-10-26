@@ -4,9 +4,7 @@ import com.restock.platform.planning.domain.model.aggregates.Recipe;
 import com.restock.platform.planning.domain.model.entities.RecipeSupply;
 import com.restock.platform.planning.domain.model.queries.GetAllRecipesQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeByIdQuery;
-import com.restock.platform.planning.domain.model.queries.GetRecipePriceByRecipeId;
 import com.restock.platform.planning.domain.model.queries.GetRecipeSuppliesQuery;
-import com.restock.platform.planning.domain.model.valueobjects.RecipePrice;
 import com.restock.platform.planning.domain.services.RecipeQueryService;
 import com.restock.platform.planning.infrastructure.persistence.mongodb.repositories.RecipeRepository;
 import org.springframework.stereotype.Service;
@@ -38,12 +36,5 @@ public class RecipeQueryServiceImpl implements RecipeQueryService {
         return recipeRepository.findById(query.recipeId())
                 .map(Recipe::getSupplies)
                 .orElse(List.of());
-    }
-
-    @Override
-    public Optional<RecipePrice> handle(GetRecipePriceByRecipeId query) {
-        return recipeRepository.findById(query.recipeId())
-                .map(Recipe::getPrice);
-
     }
 }
