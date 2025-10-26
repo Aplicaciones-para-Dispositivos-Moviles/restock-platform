@@ -19,7 +19,8 @@ public class MongoCollectionInitializer {
             "order_batches",
             "orders",
             "supplies",
-            "database_sequences"
+            "database_sequences",
+            "sales"
     );
 
     @Bean
