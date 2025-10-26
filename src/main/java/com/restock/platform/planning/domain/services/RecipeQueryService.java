@@ -4,7 +4,9 @@ import com.restock.platform.planning.domain.model.aggregates.Recipe;
 import com.restock.platform.planning.domain.model.entities.RecipeSupply;
 import com.restock.platform.planning.domain.model.queries.GetAllRecipesQuery;
 import com.restock.platform.planning.domain.model.queries.GetRecipeByIdQuery;
+import com.restock.platform.planning.domain.model.queries.GetRecipePriceByRecipeId;
 import com.restock.platform.planning.domain.model.queries.GetRecipeSuppliesQuery;
+import com.restock.platform.planning.domain.model.valueobjects.RecipePrice;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,5 +17,6 @@ public interface RecipeQueryService {
     List<Recipe> handle(GetAllRecipesQuery query);
 
     List<RecipeSupply> handle(GetRecipeSuppliesQuery query);
+    Optional<RecipePrice> handle(GetRecipePriceByRecipeId query);
 
 }
