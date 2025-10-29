@@ -18,14 +18,18 @@ import java.time.LocalDate;
 public class Batch extends AuditableAbstractAggregateRoot<Batch> {
 
     @Getter
+    @Setter
     private Long userId;
 
+    @Setter
     private Long customSupplyId;
 
     @Getter
+    @Setter
     private Double stock;
 
     @Getter
+    @Setter
     private LocalDate expirationDate;
 
     @Getter

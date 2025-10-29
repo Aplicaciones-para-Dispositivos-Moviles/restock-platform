@@ -7,6 +7,8 @@ public record CustomSupplyResource(
         int minStock,
         int maxStock,
         double price,
+        String unitName,
+        String unitAbbreviaton,
         String currencyCode,
         Long userId
 ) {}

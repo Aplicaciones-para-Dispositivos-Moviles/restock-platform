@@ -28,6 +28,8 @@ public class CustomSupplyResourceFromEntityAssembler {
                 customSupply.getStockRange().minStock(),
                 customSupply.getStockRange().maxStock(),
                 customSupply.getPrice().amount(),
+                customSupply.getUnitMeasurement().getUnitName(),
+                customSupply.getUnitMeasurement().getUnitAbbreviaton(),
                 customSupply.getPrice().currency().getCurrencyCode(),
                 customSupply.getUserId()
         );
