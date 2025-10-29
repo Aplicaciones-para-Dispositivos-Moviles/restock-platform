@@ -6,6 +6,7 @@ import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
+import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.resource.domain.services.OrderCommandService;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
@@ -35,6 +36,54 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
     }
+
+
+    private void transferStockFromSupplierToRestaurant(Order order) {
+        Long supplierId = order.getSupplierId();
+        Long restaurantId = order.getAdminRestaurantId();
+
+        for (var item : order.getBatchItems()) {
+            var batch = batchRepository.findById(item.getBatchId())
+                    .orElseThrow(() -> new IllegalArgumentException("Batch not found: " + item.getBatchId()));
+
+            if (!batch.getUserId().equals(supplierId)) {
+                throw new IllegalStateException("Batch " + batch.getId() + " does not belong to supplier " + supplierId);
+            }
+
+            if (batch.getStock() < item.getQuantity()) {
+                throw new IllegalArgumentException("Not enough stock in supplier batch " + batch.getId());
+            }
+
+            //Descontar del supplier
+            batch.setStock(batch.getStock() - item.getQuantity());
+            batchRepository.save(batch);
+
+            //Agregar al restaurant
+            var restaurantBatch = batchRepository.findAllByUserId(restaurantId)
+                    .stream()
+                    .filter(b -> b.getCustomSupplyId().equals(batch.getCustomSupplyId()))
+                    .findFirst();
+
+            if (restaurantBatch.isPresent()) {
+                var existingBatch = restaurantBatch.get();
+                existingBatch.setStock(existingBatch.getStock() + item.getQuantity());
+                batchRepository.save(existingBatch);
+            } else {
+                var customSupply = customSupplyRepository.findById(batch.getCustomSupplyId())
+                        .orElseThrow(() -> new IllegalArgumentException("CustomSupply not found for new restaurant batch"));
+
+                var newBatch = new Batch(
+                        restaurantId,
+                        customSupply,
+                        item.getQuantity(),
+                        batch.getExpirationDate()
+                );
+                newBatch.setId(sequenceGeneratorService.generateSequence("batches_sequence"));
+                batchRepository.save(newBatch);
+            }
+        }
+    }
+
 
     @Override
     public Long handle(CreateOrderCommand command) {
@@ -110,8 +159,12 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + command.orderId()));
 
         order.update(command.newState(), command.newSituation());
-
         orderRepository.save(order);
+
+        if (command.newState() == OrderToSupplierState.DELIVERED) {
+            transferStockFromSupplierToRestaurant(order);
+        }
+
         return Optional.of(order);
     }
 
