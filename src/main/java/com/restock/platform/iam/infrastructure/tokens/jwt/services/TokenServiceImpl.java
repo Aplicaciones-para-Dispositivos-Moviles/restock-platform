@@ -32,12 +32,15 @@ public class TokenServiceImpl implements BearerTokenService {
 
     private static final int TOKEN_BEGIN_INDEX = 7;
 
+    private final String secret;
+    private final int expirationDays;
 
-    @Value("${authorization.jwt.secret}")
-    private String secret;
-
-    @Value("${authorization.jwt.expiration.days}")
-    private int expirationDays;
+    public TokenServiceImpl(
+            @Value("${authorization.jwt.secret}") String secret,
+            @Value("${authorization.jwt.expiration.days}") int expirationDays) {
+        this.secret = secret;
+        this.expirationDays = expirationDays;
+    }
 
     /**
      * This method generates a JWT token from an authentication object

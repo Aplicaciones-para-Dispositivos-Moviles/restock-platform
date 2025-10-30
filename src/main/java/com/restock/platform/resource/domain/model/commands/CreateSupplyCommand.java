@@ -11,6 +11,6 @@ import com.restock.platform.resource.domain.model.valueobjects.UnitMeasurement;
         "category": "Carnes"
  */
 public record CreateSupplyCommand(
-        String name, String description, Boolean perishable, UnitMeasurement unitMeasurement, String category
+        String name, String description, Boolean perishable, String category
 ) {
 }

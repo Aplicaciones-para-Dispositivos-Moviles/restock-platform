@@ -10,8 +10,6 @@ public class SupplyResourceFromEntityAssembler {
                 supply.getName(),
                 supply.getDescription(),
                 supply.getPerishable(),
-                supply.getUnitMeasurement().unitName(),
-                supply.getUnitMeasurement().unitAbbreviaton(),
                 supply.getCategory()
         );
     }

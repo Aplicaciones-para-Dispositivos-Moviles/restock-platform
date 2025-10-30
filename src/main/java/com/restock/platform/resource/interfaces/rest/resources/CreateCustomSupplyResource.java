@@ -6,10 +6,12 @@ public record CreateCustomSupplyResource(
         int minStock,
         int maxStock,
         double price,
-        Long userId
+        Long userId,
+        String unitName,
+        String unitAbbreviaton
 ) {
     public CreateCustomSupplyResource {
-        if(supplyId == null) {
+        if (supplyId == null) {
             throw new IllegalArgumentException("supplyId cannot be null");
         }
         if (description == null || description.isBlank())
@@ -22,5 +24,13 @@ public record CreateCustomSupplyResource(
             throw new IllegalArgumentException("Price must be non-negative");
         if (userId == null)
             throw new IllegalArgumentException("User ID is required");
+        if (unitName == null || unitName.isBlank()) {
+            throw new IllegalArgumentException("Unit name cannot be null or blank");
+        }
+        if (unitAbbreviaton == null || unitAbbreviaton.isBlank()) {
+            throw new IllegalArgumentException("Unit abbreviation cannot be null or blank");
+        }
     }
 }
+
+
