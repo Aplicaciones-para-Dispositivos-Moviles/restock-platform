@@ -43,6 +43,7 @@ public class CustomSupply extends AuditableAbstractAggregateRoot<CustomSupply> {
         this.stockRange = command.stockRange();
         this.price = command.price();
         this.description = command.description();
+        this.unitMeasurement = command.unitMeasurement();
         this.userId = command.userId();
     }
 
