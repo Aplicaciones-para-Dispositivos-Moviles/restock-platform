@@ -1,6 +1,4 @@
 package com.restock.platform.iam.interfaces.rest.resources;
 
-import java.util.List;
-
-public record UserResource(Long id, String username, Long roleId) {
+public record UserResource(Long id, String username, Long roleId, int subscription) {
 }

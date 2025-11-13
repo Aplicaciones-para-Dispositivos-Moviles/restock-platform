@@ -1,11 +1,14 @@
 package com.restock.platform.monitoring.interfaces.rest.resources;
 
-//Lo que necesitamos para crear una venta
+import java.util.List;
+
 public record CreateSaleResource(
-        int userId
+    List<DishSelectionResource> dishSelections,
+    List<SupplySelectionResource> supplySelections,
+    Double subtotal,
+    Double taxes,
+    Double totalCost,
+    Integer userId
 ) {
-    public CreateSaleResource {
-        if (userId <= 0)
-            throw new IllegalArgumentException("User ID must be a positive number");
-    }
 }
+

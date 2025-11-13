@@ -1,6 +1,7 @@
 package com.restock.platform.iam.domain.model.aggregates;
 
 import com.restock.platform.iam.domain.model.entities.Role;
+import com.restock.platform.iam.domain.model.valueobjects.SubscriptionType;
 import com.restock.platform.profile.domain.model.entities.Profile;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.validation.constraints.NotBlank;
@@ -36,6 +37,8 @@ public class User extends AuditableAbstractAggregateRoot<User> {
 
     private Profile profile = Profile.defaultProfile();
 
+    private int subscription = SubscriptionType.NO_SUBSCRIPTION.getValue();
+
     public User() {
     }
 
@@ -44,9 +47,28 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.password = password;
         this.role = role;
         this.profile = Profile.defaultProfile();
+        this.subscription = SubscriptionType.NO_SUBSCRIPTION.getValue();
     }
 
     public String getRoleName() {
         return role != null ? role.getStringName() : null;
+    }
+
+    /**
+     * Update user subscription
+     * @param subscriptionValue the subscription value (0, 1, or 2)
+     */
+    public void updateSubscription(int subscriptionValue) {
+        // Validate the subscription value
+        SubscriptionType.fromValue(subscriptionValue);
+        this.subscription = subscriptionValue;
+    }
+
+    /**
+     * Get the subscription type
+     * @return the subscription type
+     */
+    public SubscriptionType getSubscriptionType() {
+        return SubscriptionType.fromValue(this.subscription);
     }
 }

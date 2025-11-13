@@ -5,11 +5,13 @@ import com.restock.platform.iam.application.internal.outboundservices.tokens.Tok
 import com.restock.platform.iam.domain.model.aggregates.User;
 import com.restock.platform.iam.domain.model.commands.SignInCommand;
 import com.restock.platform.iam.domain.model.commands.SignUpCommand;
+import com.restock.platform.iam.domain.model.commands.UpdateUserSubscriptionCommand;
 import com.restock.platform.iam.domain.services.UserCommandService;
 import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.RoleRepository;
 import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import com.restock.platform.shared.domain.exceptions.InvalidCredentialsException;
 import com.restock.platform.shared.infrastructure.persistence.mongodb.SequenceGeneratorService;
+import com.restock.platform.subscriptions.interfaces.acl.SubscriptionsContextFacade;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
@@ -28,17 +30,19 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final UserRepository userRepository;
     private final HashingService hashingService;
     private final TokenService tokenService;
-
     private final RoleRepository roleRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final SubscriptionsContextFacade subscriptionsContextFacade;
 
     public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService,
-                                  RoleRepository roleRepository, SequenceGeneratorService sequenceGeneratorService) {
+                                  RoleRepository roleRepository, SequenceGeneratorService sequenceGeneratorService,
+                                  SubscriptionsContextFacade subscriptionsContextFacade) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
         this.roleRepository = roleRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.subscriptionsContextFacade = subscriptionsContextFacade;
     }
 
     /**
@@ -81,6 +85,47 @@ public class UserCommandServiceImpl implements UserCommandService {
         user.setId(sequenceGeneratorService.generateSequence("users_sequence"));
         userRepository.save(user);
 
+        // Create subscription for the new user
+        try {
+            subscriptionsContextFacade.createSubscriptionForUser(user.getId());
+        } catch (Exception e) {
+            // Log the error but don't fail user creation
+            System.err.println("Failed to create subscription for user " + user.getId() + ": " + e.getMessage());
+        }
+
         return userRepository.findByUsername(command.username());
+    }
+
+    /**
+     * Handle the update user subscription command
+     * <p>
+     *     This method handles the {@link UpdateUserSubscriptionCommand} command and returns the updated user.
+     * </p>
+     * @param command the update user subscription command containing the user id and subscription value
+     * @return the updated user
+     * @throws RuntimeException if the user is not found
+     */
+    @Override
+    public Optional<User> handle(UpdateUserSubscriptionCommand command) {
+        var user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.updateSubscription(command.subscription());
+        userRepository.save(user);
+
+        // Update subscription in Subscriptions bounded context
+        try {
+            // Check if subscription exists, if not create it
+            if (!subscriptionsContextFacade.subscriptionExistsForUser(user.getId())) {
+                subscriptionsContextFacade.createSubscriptionForUser(user.getId());
+            }
+            // Update the subscription plan
+            subscriptionsContextFacade.updateSubscriptionPlanForUser(user.getId(), command.subscription());
+        } catch (Exception e) {
+            // Log the error but don't fail user update
+            System.err.println("Failed to update subscription for user " + user.getId() + ": " + e.getMessage());
+        }
+
+        return Optional.of(user);
     }
 }

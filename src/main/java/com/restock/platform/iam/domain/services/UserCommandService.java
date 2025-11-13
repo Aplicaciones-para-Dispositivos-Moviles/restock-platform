@@ -3,6 +3,7 @@ package com.restock.platform.iam.domain.services;
 import com.restock.platform.iam.domain.model.aggregates.User;
 import com.restock.platform.iam.domain.model.commands.SignInCommand;
 import com.restock.platform.iam.domain.model.commands.SignUpCommand;
+import com.restock.platform.iam.domain.model.commands.UpdateUserSubscriptionCommand;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.Optional;
@@ -28,5 +29,11 @@ public interface UserCommandService {
      */
     Optional<User> handle(SignUpCommand command);
 
+    /**
+     * Handle update user subscription command
+     * @param command the {@link UpdateUserSubscriptionCommand} command
+     * @return an {@link Optional} of {@link User} entity
+     */
+    Optional<User> handle(UpdateUserSubscriptionCommand command);
 
 }

@@ -5,6 +5,6 @@ import com.restock.platform.iam.interfaces.rest.resources.AuthenticatedUserResou
 
 public class AuthenticatedUserResourceFromEntityAssembler {
     public static AuthenticatedUserResource toResourceFromEntity(User user, String token) {
-        return new AuthenticatedUserResource(user.getId(), user.getUsername(), user.getRole().getId(),token);
+        return new AuthenticatedUserResource(user.getId(), user.getUsername(), user.getRole().getId(), user.getSubscription(), token);
     }
 }
