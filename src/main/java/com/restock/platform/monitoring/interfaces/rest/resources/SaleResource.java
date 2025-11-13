@@ -1,13 +1,18 @@
 package com.restock.platform.monitoring.interfaces.rest.resources;
 
+import java.util.Date;
 import java.util.List;
 
-// Lo que guardamos de un sale
 public record SaleResource(
         Long id,
-        String saleCode,
+        String saleNumber,
+        Double totalCost,
+        Double subtotal,
+        Double taxes,
+        Date registeredDate,
         Integer userId,
-        Double totalPrice,
-        List<SaleItemResource> items
+        String status,
+        List<DishSelectionResource> dishSelections,
+        List<SupplySelectionResource> supplySelections
 ) {
 }
