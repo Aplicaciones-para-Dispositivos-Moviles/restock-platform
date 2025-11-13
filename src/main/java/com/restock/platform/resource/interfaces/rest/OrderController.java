@@ -1,21 +1,14 @@
 package com.restock.platform.resource.interfaces.rest;
 
-import com.restock.platform.resource.domain.model.aggregates.Order;
-import com.restock.platform.resource.domain.model.aggregates.OrderBatch;
-import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
-import com.restock.platform.resource.domain.model.commands.CreateOrderBatchCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
-import com.restock.platform.resource.domain.model.queries.GetAllBatchesByOrderId;
 import com.restock.platform.resource.domain.model.queries.GetAllOrdersQuery;
 import com.restock.platform.resource.domain.model.queries.GetOrderByIdQuery;
-import com.restock.platform.resource.domain.services.OrderBatchCommandService;
-import com.restock.platform.resource.domain.services.OrderBatchQueryService;
 import com.restock.platform.resource.domain.services.OrderCommandService;
 import com.restock.platform.resource.domain.services.OrderQueryService;
-import com.restock.platform.resource.interfaces.rest.resources.*;
-import com.restock.platform.resource.interfaces.rest.transform.CreateOrderBatchCommandFromResourceAssembler;
+import com.restock.platform.resource.interfaces.rest.resources.CreateOrderResource;
+import com.restock.platform.resource.interfaces.rest.resources.OrderResource;
+import com.restock.platform.resource.interfaces.rest.resources.UpdateOrderStateResource;
 import com.restock.platform.resource.interfaces.rest.transform.CreateOrderCommandFromResourceAssembler;
-import com.restock.platform.resource.interfaces.rest.transform.OrderBatchResourceFromEntityAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.OrderResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,28 +24,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/orders", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "Orders", description = "Endpoints for managing orders to suppliers and their associated batches")
+@Tag(name = "Orders", description = "Endpoints for managing orders and their internal batch items")
 public class OrderController {
 
     private final OrderCommandService orderCommandService;
     private final OrderQueryService orderQueryService;
-    private final OrderBatchCommandService orderBatchCommandService;
-    private final OrderBatchQueryService orderBatchQueryService;
 
     public OrderController(OrderCommandService orderCommandService,
-                           OrderQueryService orderQueryService,
-                           OrderBatchCommandService orderBatchCommandService,
-                           OrderBatchQueryService orderBatchQueryService) {
+                           OrderQueryService orderQueryService) {
         this.orderCommandService = orderCommandService;
         this.orderQueryService = orderQueryService;
-        this.orderBatchCommandService = orderBatchCommandService;
-        this.orderBatchQueryService = orderBatchQueryService;
     }
 
-    // ------------------- ORDER ------------------------
-
     @PostMapping
-    @Operation(summary = "Create a new order", description = "Create a new order and return its details")
+    @Operation(summary = "Create a new order", description = "Create a new order with optional batch items")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Order created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
@@ -61,13 +46,15 @@ public class OrderController {
         var command = CreateOrderCommandFromResourceAssembler.toCommandFromResource(resource);
         var orderId = orderCommandService.handle(command);
         var result = orderQueryService.handle(new GetOrderByIdQuery(orderId));
+
         if (result.isEmpty()) return ResponseEntity.notFound().build();
+
         var orderResource = OrderResourceFromEntityAssembler.toResourceFromEntity(result.get());
         return new ResponseEntity<>(orderResource, HttpStatus.CREATED);
     }
 
     @GetMapping
-    @Operation(summary = "Get all orders", description = "Retrieve all orders")
+    @Operation(summary = "Get all orders", description = "Retrieve all orders from MongoDB")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Orders retrieved successfully")
     })
@@ -80,7 +67,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get order by ID", description = "Retrieve an order by its ID")
+    @Operation(summary = "Get order by ID", description = "Retrieve an order by its ID including batch items")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Order found"),
             @ApiResponse(responseCode = "404", description = "Order not found")
@@ -106,6 +93,7 @@ public class OrderController {
         var result = orderCommandService.handle(command);
 
         if (result.isEmpty()) return ResponseEntity.notFound().build();
+
         var updatedResource = OrderResourceFromEntityAssembler.toResourceFromEntity(result.get());
         return ResponseEntity.ok(updatedResource);
     }
@@ -125,42 +113,5 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    // ------------------ ORDER BATCH ------------------------
-
-    @PostMapping("/{orderId}/batches")
-    @Operation(summary = "Create an order batch", description = "Add a batch to an existing order")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Order batch created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
-    })
-    public ResponseEntity<OrderBatchResource> createOrderBatch(
-            @PathVariable Long orderId,
-            @RequestBody CreateOrderBatchResource resource) {
-
-        var command = CreateOrderBatchCommandFromResourceAssembler.toCommandFromResource(orderId, resource);
-        var id = orderBatchCommandService.handle(command);
-        var batches = orderBatchQueryService.handle(new GetAllBatchesByOrderId(orderId));
-
-        var batch = batches.stream().filter(b -> b.getId().equals(id)).findFirst();
-        if (batch.isEmpty()) return ResponseEntity.notFound().build();
-
-        var response = OrderBatchResourceFromEntityAssembler.toResourceFromEntity(batch.get());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{orderId}/batches")
-    @Operation(summary = "Get batches for an order", description = "Retrieve all batches associated with a given order")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Batches retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Order not found")
-    })
-    public ResponseEntity<List<OrderBatchResource>> getBatchesByOrder(@PathVariable Long orderId) {
-        var batches = orderBatchQueryService.handle(new GetAllBatchesByOrderId(orderId));
-        var resources = batches.stream()
-                .map(OrderBatchResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-        return ResponseEntity.ok(resources);
     }
 }

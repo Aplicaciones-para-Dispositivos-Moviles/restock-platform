@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class UserDetailsImpl implements UserDetails {
 
+    private final Long id;
     private final String username;
     @JsonIgnore
     private final String password;
@@ -31,11 +32,13 @@ public class UserDetailsImpl implements UserDetails {
 
     /**
      * This constructor initializes the UserDetailsImpl object.
+     * @param id The user ID.
      * @param username The username.
      * @param password The password.
      * @param authorities The authorities.
      */
-    public UserDetailsImpl(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
@@ -53,6 +56,7 @@ public class UserDetailsImpl implements UserDetails {
     public static UserDetailsImpl build(User user) {
         var authority = new SimpleGrantedAuthority(user.getRole().getName().name());
         return new UserDetailsImpl(
+                user.getId(),
                 user.getUsername(),
                 user.getPassword(),
                 List.of(authority)

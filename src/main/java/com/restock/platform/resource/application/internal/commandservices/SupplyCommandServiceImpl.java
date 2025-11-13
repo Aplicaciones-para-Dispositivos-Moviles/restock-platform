@@ -44,7 +44,6 @@ public class SupplyCommandServiceImpl implements SupplyCommandService {
                             cmd.name(),
                             cmd.description(),
                             cmd.perishable(),
-                            cmd.unitMeasurement(),
                             cmd.category()
                     );
 

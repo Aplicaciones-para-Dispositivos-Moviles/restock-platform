@@ -10,4 +10,5 @@ import java.util.List;
 public interface BatchRepository extends MongoRepository<Batch, Long> {
     List<Batch> findAllByCustomSupplyId(Long supplyId);
     List<Batch> findAllByUserId(Long userId);
+    List<Batch> findAllByIdIn(List<Long> ids);
 }

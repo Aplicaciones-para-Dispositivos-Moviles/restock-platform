@@ -1,10 +1,13 @@
 package com.restock.platform.resource.domain.model.aggregates;
 
 import com.restock.platform.resource.domain.model.commands.CreateCustomSupplyCommand;
+import com.restock.platform.resource.domain.model.entities.Supply;
 import com.restock.platform.resource.domain.model.valueobjects.StockRange;
 import com.restock.platform.resource.domain.model.valueobjects.Price;
+import com.restock.platform.resource.domain.model.valueobjects.UnitMeasurement;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "custom_supplies")
@@ -25,8 +28,14 @@ public class CustomSupply extends AuditableAbstractAggregateRoot<CustomSupply> {
     @Getter
     private String description;
 
+    @Getter
+    private UnitMeasurement unitMeasurement;
+
+    @Getter
+    @Setter
+    private Supply supply;
+
     protected CustomSupply() {
-        // Para JPA
     }
 
     public CustomSupply(CreateCustomSupplyCommand command) {
@@ -34,13 +43,16 @@ public class CustomSupply extends AuditableAbstractAggregateRoot<CustomSupply> {
         this.stockRange = command.stockRange();
         this.price = command.price();
         this.description = command.description();
+        this.unitMeasurement = command.unitMeasurement();
         this.userId = command.userId();
     }
 
-    public CustomSupply update(StockRange stockRange, Price price, String description) {
+    public CustomSupply update(Long supplyId, StockRange stockRange, Price price, String description , UnitMeasurement unitMeasurement) {
+        this.supplyId = supplyId;
         this.stockRange = stockRange;
         this.price = price;
         this.description = description;
+        this.unitMeasurement = unitMeasurement;
         return this;
     }
 }

@@ -49,7 +49,7 @@ public class OpenApiConfiguration {
                                         .bearerFormat("JWT")));
 
         openApi.servers(List.of(
-                new Server().url("https://restock-platform-production.up.railway.app")
+                new Server().url("https://restock-platform.onrender.com")
                 //new Server().url("http://localhost:8080")
         ));
 
