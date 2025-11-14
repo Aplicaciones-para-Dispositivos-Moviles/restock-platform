@@ -1,5 +1,6 @@
 package com.restock.platform.resource.application.internal.commandservices;
 
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
@@ -26,15 +27,19 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private final SequenceGeneratorService sequenceGeneratorService;
     private final BatchRepository batchRepository;
     private final CustomSupplyRepository customSupplyRepository;
+    private final UserRepository userRepository;
+
 
     public OrderCommandServiceImpl(OrderRepository orderRepository,
                                    SequenceGeneratorService sequenceGeneratorService,
                                    BatchRepository batchRepository,
-                                   CustomSupplyRepository customSupplyRepository) {
+                                   CustomSupplyRepository customSupplyRepository,
+                                   UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -72,8 +77,12 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 var customSupply = customSupplyRepository.findById(batch.getCustomSupplyId())
                         .orElseThrow(() -> new IllegalArgumentException("CustomSupply not found for new restaurant batch"));
 
+                var restaurantUser = userRepository.findById(restaurantId)
+                            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + restaurantId));
+
                 var newBatch = new Batch(
                         restaurantId,
+                        restaurantUser.getRole().getId(),
                         customSupply,
                         item.getQuantity(),
                         batch.getExpirationDate()

@@ -1,5 +1,6 @@
 package com.restock.platform.resource.interfaces.rest.transform;
 
+import com.restock.platform.iam.interfaces.rest.transform.UserResourceFromEntityAssembler;
 import com.restock.platform.resource.domain.model.aggregates.*;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.interfaces.rest.resources.*;
@@ -45,6 +46,7 @@ public class OrderResourceFromEntityAssembler {
         return new BatchResource(
                 batch.getId(),
                 batch.getUserId(),
+                batch.getUserRoleId(),
                 batch.getCustomSupplyId(),
                 batch.getStock(),
                 batch.getExpirationDate(),
