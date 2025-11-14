@@ -1,5 +1,6 @@
 package com.restock.platform.resource.application.internal.commandservices;
 
+import com.restock.platform.iam.infrastructure.persistence.mongodb.repositories.UserRepository;
 import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.commands.*;
 import com.restock.platform.resource.domain.services.BatchCommandService;
@@ -15,13 +16,16 @@ public class BatchCommandServiceImpl implements BatchCommandService {
 
     private final BatchRepository batchRepository;
     private final CustomSupplyRepository customSupplyRepository;
+    private final UserRepository userRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
 
     public BatchCommandServiceImpl(BatchRepository batchRepository,
                                    CustomSupplyRepository customSupplyRepository,
+                                   UserRepository userRepository,
                                    SequenceGeneratorService sequenceGeneratorService) {
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
+        this.userRepository = userRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
@@ -31,7 +35,10 @@ public class BatchCommandServiceImpl implements BatchCommandService {
         var supply = customSupplyRepository.findById(command.customSupplyId())
                 .orElseThrow(() -> new IllegalArgumentException("Supply not found with id: " + command.customSupplyId()));
 
-        var batch = new Batch(command, supply);
+        var user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.userId()));
+
+        var batch = new Batch(command, user.getRole().getId(), supply);
         batch.setId(sequenceGeneratorService.generateSequence("batches_sequence"));
         try {
             batchRepository.save(batch);

@@ -1,5 +1,6 @@
 package com.restock.platform.resource.domain.model.aggregates;
 
+import com.restock.platform.iam.domain.model.aggregates.User;
 import com.restock.platform.resource.domain.model.commands.CreateBatchCommand;
 import com.restock.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import lombok.Getter;
@@ -20,6 +21,10 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
     @Getter
     @Setter
     private Long userId;
+
+    @Getter
+    @Setter
+    private Long userRoleId;
 
     @Setter
     private Long customSupplyId;
@@ -47,8 +52,9 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
      * @param stock The amount of stock in the batch.
      * @param expirationDate The expiration date of the batch.
      */
-    public Batch(Long userId, CustomSupply customSupply, Double stock, LocalDate expirationDate) {
+    public Batch(Long userId, Long userRoleId, CustomSupply customSupply, Double stock, LocalDate expirationDate) {
         this.userId = userId;
+        this.userRoleId = userRoleId;
         this.customSupplyId = customSupply != null ? customSupply.getId() : null;
         this.stock = stock;
         this.expirationDate = expirationDate;
@@ -60,8 +66,8 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
      * @param command The command containing batch creation data.
      * @param customSupply The supply associated with this batch.
      */
-    public Batch(CreateBatchCommand command, CustomSupply customSupply) {
-        this(command.userId(), customSupply, command.stock(), command.expirationDate());
+    public Batch(CreateBatchCommand command, Long userRoleId, CustomSupply customSupply) {
+        this(command.userId(), userRoleId, customSupply, command.stock(), command.expirationDate());
     }
 
     public Long getCustomSupplyId() {
