@@ -5,6 +5,8 @@ import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.queries.GetAllOrdersQuery;
 import com.restock.platform.resource.domain.model.queries.GetOrderByIdQuery;
+import com.restock.platform.resource.domain.model.queries.GetOrdersByAdminRestaurantIdQuery;
+import com.restock.platform.resource.domain.model.queries.GetOrdersBySupplierIdQuery;
 import com.restock.platform.resource.domain.services.OrderQueryService;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
@@ -76,4 +78,33 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                     return order;
                 });
     }
+
+    @Override
+    public List<Order> handle(GetOrdersBySupplierIdQuery query) {
+        var orders = orderRepository.findAllBySupplierId(query.supplierId());
+
+        orders.forEach(order ->
+                order.getBatchItems().forEach(item -> {
+                    var batch = loadBatch(item.getBatchId());
+                    item.setBatch(batch);
+                })
+        );
+
+        return orders;
+    }
+
+    @Override
+    public List<Order> handle(GetOrdersByAdminRestaurantIdQuery query) {
+        var orders = orderRepository.findAllBySupplierId(query.adminRestaurantId());
+
+        orders.forEach(order ->
+                order.getBatchItems().forEach(item -> {
+                    var batch = loadBatch(item.getBatchId());
+                    item.setBatch(batch);
+                })
+        );
+
+        return orders;
+    }
+
 }
