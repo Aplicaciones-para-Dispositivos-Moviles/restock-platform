@@ -1,13 +1,14 @@
 package com.restock.platform.resource.interfaces.rest;
 
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
-import com.restock.platform.resource.domain.model.queries.GetAllOrdersQuery;
-import com.restock.platform.resource.domain.model.queries.GetOrderByIdQuery;
+import com.restock.platform.resource.domain.model.queries.*;
 import com.restock.platform.resource.domain.services.OrderCommandService;
 import com.restock.platform.resource.domain.services.OrderQueryService;
+import com.restock.platform.resource.interfaces.rest.resources.BatchResource;
 import com.restock.platform.resource.interfaces.rest.resources.CreateOrderResource;
 import com.restock.platform.resource.interfaces.rest.resources.OrderResource;
 import com.restock.platform.resource.interfaces.rest.resources.UpdateOrderStateResource;
+import com.restock.platform.resource.interfaces.rest.transform.BatchResourceFromEntityAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.CreateOrderCommandFromResourceAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.OrderResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -114,4 +115,44 @@ public class OrderController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    /**
+     * Get order by supplier ID
+     *
+     * @param supplierId The ID of the user
+     * @return A list of {@link OrderResource} belonging to the user
+     */
+    @GetMapping("/supplier/{supplierId}")
+    @Operation(summary = "Get order by supplier ID", description = "Retrieve all orders associated with a given user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders found for supplier")
+    })
+    public ResponseEntity<List<OrderResource>> getOrderBySupplierId(@PathVariable Long supplierId) {
+        var orders = orderQueryService.handle(new GetOrdersBySupplierIdQuery(supplierId));
+        var resources = orders.stream()
+                .map(OrderResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        return ResponseEntity.ok(resources);
+    }
+
+    /**
+     * Get order by admin restaurant ID
+     *
+     * @param adminRestaurantId The ID of the user
+     * @return A list of {@link OrderResource} belonging to the user
+     */
+    @GetMapping("/admin-restaurant/{adminRestaurantId}")
+    @Operation(summary = "Get order by supplier ID", description = "Retrieve all orders associated with a given user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders found for supplier")
+    })
+    public ResponseEntity<List<OrderResource>> getOrderByAdminRestaurantId(@PathVariable Long adminRestaurantId) {
+        var orders = orderQueryService.handle(new GetOrdersByAdminRestaurantIdQuery(adminRestaurantId));
+        var resources = orders.stream()
+                .map(OrderResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        return ResponseEntity.ok(resources);
+    }
 }
+
+
