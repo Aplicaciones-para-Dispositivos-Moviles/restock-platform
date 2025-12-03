@@ -144,7 +144,7 @@ public class OrderController {
     @GetMapping("/admin-restaurant/{adminRestaurantId}")
     @Operation(summary = "Get order by supplier ID", description = "Retrieve all orders associated with a given user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Orders found for supplier")
+            @ApiResponse(responseCode = "200", description = "Orders found for admin restaurant")
     })
     public ResponseEntity<List<OrderResource>> getOrderByAdminRestaurantId(@PathVariable Long adminRestaurantId) {
         var orders = orderQueryService.handle(new GetOrdersByAdminRestaurantIdQuery(adminRestaurantId));

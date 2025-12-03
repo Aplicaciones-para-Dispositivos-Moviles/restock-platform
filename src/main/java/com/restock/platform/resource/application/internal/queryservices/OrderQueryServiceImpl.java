@@ -95,7 +95,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Override
     public List<Order> handle(GetOrdersByAdminRestaurantIdQuery query) {
-        var orders = orderRepository.findAllBySupplierId(query.adminRestaurantId());
+        var orders = orderRepository.findAllByAdminRestaurantId(query.adminRestaurantId());
 
         orders.forEach(order ->
                 order.getBatchItems().forEach(item -> {
