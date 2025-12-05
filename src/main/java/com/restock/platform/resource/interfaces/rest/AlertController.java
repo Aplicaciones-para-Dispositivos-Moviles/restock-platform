@@ -3,9 +3,12 @@ package com.restock.platform.resource.interfaces.rest;
 import com.restock.platform.resource.domain.model.queries.GetAllAlertsByAdminRestaurantIdQuery;
 import com.restock.platform.resource.domain.model.queries.GetAllAlertsBySupplierIdQuery;
 import com.restock.platform.resource.domain.model.queries.GetAllAlertsQuery;
+import com.restock.platform.resource.domain.services.AlertCommandService;
 import com.restock.platform.resource.domain.services.AlertQueryService;
 import com.restock.platform.resource.interfaces.rest.resources.AlertResource;
+import com.restock.platform.resource.interfaces.rest.resources.UpdateAlertResource;
 import com.restock.platform.resource.interfaces.rest.transform.AlertResourceFromEntityAssembler;
+import com.restock.platform.resource.interfaces.rest.transform.UpdateAlertCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,11 +27,14 @@ public class AlertController {
 
     private final AlertQueryService alertQueryService;
     private final AlertResourceFromEntityAssembler assembler;
+    private final AlertCommandService alertCommandService;
 
-    public AlertController(AlertQueryService alertQueryService) {
+
+    public AlertController(AlertQueryService alertQueryService, AlertCommandService alertCommandService) {
         this.alertQueryService = alertQueryService;
         // Se inicializa el Assembler (siguiendo el patrón de tu OrderController)
         this.assembler = new AlertResourceFromEntityAssembler();
+        this.alertCommandService = alertCommandService;
     }
 
     /**
@@ -85,5 +91,14 @@ public class AlertController {
                 .map(assembler::toResource)
                 .toList();
         return ResponseEntity.ok(resources);
+    }
+
+    @PutMapping("/state")
+    public ResponseEntity<?> updateAlert(@RequestBody UpdateAlertResource resource) {
+        var command = UpdateAlertCommandFromResourceAssembler.toCommandFromResource(resource);
+
+        return alertCommandService.handle(command)
+                .<ResponseEntity<?>>map(order -> ResponseEntity.ok().build())
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
