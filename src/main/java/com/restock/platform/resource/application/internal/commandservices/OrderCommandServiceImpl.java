@@ -6,9 +6,11 @@ import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
+import com.restock.platform.resource.domain.model.entities.Alert;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.resource.domain.services.OrderCommandService;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.AlertRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 public class OrderCommandServiceImpl implements OrderCommandService {
 
@@ -28,22 +31,24 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private final BatchRepository batchRepository;
     private final CustomSupplyRepository customSupplyRepository;
     private final UserRepository userRepository;
+    private final AlertRepository alertRepository;
 
 
     public OrderCommandServiceImpl(OrderRepository orderRepository,
                                    SequenceGeneratorService sequenceGeneratorService,
                                    BatchRepository batchRepository,
                                    CustomSupplyRepository customSupplyRepository,
-                                   UserRepository userRepository) {
+                                   UserRepository userRepository, AlertRepository alertRepository) {
         this.orderRepository = orderRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
         this.userRepository = userRepository;
+        this.alertRepository = alertRepository;
     }
 
 
-    private void transferStockFromSupplierToRestaurant(Order order) {
+    public void transferStockFromSupplierToRestaurant(Order order) {
         Long supplierId = order.getSupplierId();
         Long restaurantId = order.getAdminRestaurantId();
 
@@ -158,6 +163,25 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
         order.finalizeOrderTotals();
         orderRepository.save(order);
+
+        // ORDER LOGIC
+        String alertMessage = String.format(
+                "New Order #%d received from restaurant ID %d. Awaiting your approval.",
+                order.getId(),
+                order.getAdminRestaurantId()
+        );
+
+        var alert = new Alert(
+                alertMessage,
+                order.getId(),
+                order.getSituation(),
+                order.getSupplierId(),
+                order.getAdminRestaurantId()
+        );
+
+        alert.setId(sequenceGeneratorService.generateSequence("alerts_sequence"));
+        alertRepository.save(alert);
+
         return order.getId();
     }
 
@@ -173,6 +197,47 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         if (command.newState() == OrderToSupplierState.DELIVERED) {
             transferStockFromSupplierToRestaurant(order);
         }
+
+        String alertMessage;
+        Long recipientId = order.getAdminRestaurantId();
+        boolean shouldCreateAlert = true;
+
+        switch (command.newSituation()) {
+            case APPROVED:
+                alertMessage = String.format(
+                        "Order #%d has been APPROVED by the supplier and is being prepared. Situation: %s",
+                        order.getId(),
+                        order.getSituation()
+                );
+                break;
+            case DECLINED:
+                alertMessage = String.format(
+                        "Order #%d has been DECLINED by the supplier. Situation: %s",
+                        order.getId(),
+                        order.getSituation()
+                );
+                break;
+            case PENDING:
+            case CANCELLED:
+            default:
+                shouldCreateAlert = false;
+                alertMessage = "";
+                break;
+        }
+
+        if (shouldCreateAlert) {
+            var alert = new Alert(
+                    alertMessage,
+                    order.getId(),
+                    order.getSituation(),
+                    order.getSupplierId(),
+                    recipientId
+            );
+
+            alert.setId(sequenceGeneratorService.generateSequence("alerts_sequence"));
+            alertRepository.save(alert);
+        }
+
 
         return Optional.of(order);
     }
