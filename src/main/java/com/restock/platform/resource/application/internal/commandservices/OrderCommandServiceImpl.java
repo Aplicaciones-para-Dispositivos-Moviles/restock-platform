@@ -48,7 +48,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     }
 
 
-    private void transferStockFromSupplierToRestaurant(Order order) {
+    public void transferStockFromSupplierToRestaurant(Order order) {
         Long supplierId = order.getSupplierId();
         Long restaurantId = order.getAdminRestaurantId();
 
@@ -197,7 +197,6 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         if (command.newState() == OrderToSupplierState.DELIVERED) {
             transferStockFromSupplierToRestaurant(order);
         }
-        //verify data in console
 
         String alertMessage;
         Long recipientId = order.getAdminRestaurantId();
