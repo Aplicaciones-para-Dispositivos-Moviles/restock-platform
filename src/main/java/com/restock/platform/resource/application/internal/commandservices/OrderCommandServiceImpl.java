@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation.APPROVED;
-import static com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation.DECLINED;
 
 @Service
 public class OrderCommandServiceImpl implements OrderCommandService {
@@ -204,7 +202,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Long recipientId = order.getAdminRestaurantId();
         boolean shouldCreateAlert = true;
 
-        switch (command.newState()) {
+        switch (command.newSituation()) {
             case APPROVED:
                 alertMessage = String.format(
                         "Order #%d has been APPROVED by the supplier and is being prepared. Situation: %s",
@@ -219,13 +217,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                         order.getSituation()
                 );
                 break;
-            case DELIVERED:
-                alertMessage = String.format(
-                        "Order #%d has been DELIVERED and the stock in your restaurant has been successfully updated. Situation: %s",
-                        order.getId(),
-                        order.getSituation()
-                );
-                break;
+            case PENDING:
+            case CANCELLED:
             default:
                 shouldCreateAlert = false;
                 alertMessage = "";
