@@ -18,11 +18,13 @@ public class RecipeResourceFromEntityAssembler {
                         supply.getSupplyQuantity().supplyQuantity()
                 )).toList();
 
+        String imageUrl = recipe.getImageUrl() != null ? recipe.getImageUrl().imageUrl() : null;
+
         return new RecipeResource(
                 recipe.getRecipeId().recipeId(),
                 recipe.getName(),
                 recipe.getDescription(),
-                recipe.getImageUrl().imageUrl(),
+                imageUrl,
                 recipe.getPrice().price(),
                 recipe.getUserId(),
                 supplies
