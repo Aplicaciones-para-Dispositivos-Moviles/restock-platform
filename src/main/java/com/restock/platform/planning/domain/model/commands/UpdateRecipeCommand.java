@@ -14,8 +14,7 @@ public record UpdateRecipeCommand(
             throw new IllegalArgumentException("Name cannot be null or blank");
         if (description == null || description.isBlank())
             throw new IllegalArgumentException("Description cannot be null or blank");
-        if (imageUrl == null || imageUrl.isBlank())
-            throw new IllegalArgumentException("Image URL cannot be null or blank");
+        // imageUrl is now optional - no validation required
         if (price == null || price < 0)
             throw new IllegalArgumentException("Price must be a non-negative number");
     }
