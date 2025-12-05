@@ -201,7 +201,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         String alertMessage;
-        Long recipientId = order.getAdminRestaurantId(); // El destinatario es el restaurante
+        Long recipientId = order.getAdminRestaurantId();
         boolean shouldCreateAlert = true;
 
         switch (command.newState()) {
@@ -236,7 +236,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             var alert = new Alert(
                     alertMessage,
                     order.getId(),
-                    order.getSituation(), // La situación actual de la orden
+                    order.getSituation(),
                     order.getSupplierId(),
                     recipientId
             );
@@ -245,7 +245,6 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             alertRepository.save(alert);
         }
 
-        // -----------------------------------------------------------
 
         return Optional.of(order);
     }
