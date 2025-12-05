@@ -16,6 +16,8 @@ public class Alert extends AuditableModel {
     private final String message;
     private final Long orderId;
     private final LocalDate date;
+    private final Long supplierId;
+    private final Long adminRestaurantId;
 
     // The order situation (e.g., APPROVED, DECLINED) that triggered this specific alert event.
     private final OrderToSupplierSituation situationAtAlert;
@@ -26,6 +28,8 @@ public class Alert extends AuditableModel {
         this.orderId = null;
         this.date = null;
         this.situationAtAlert = null;
+        this.supplierId = null;
+        this.adminRestaurantId = null;
     }
 
     /**
@@ -34,10 +38,12 @@ public class Alert extends AuditableModel {
      * @param orderId ID of the related order.
      * @param situation The specific situation (event trigger).
      */
-    public Alert(String message, Long orderId, OrderToSupplierSituation situation) {
+    public Alert(String message, Long orderId, OrderToSupplierSituation situation, Long supplierId, Long adminRestaurantId) {
         this.message = message;
         this.orderId = orderId;
         this.situationAtAlert = situation;
+        this.supplierId = supplierId;
+        this.adminRestaurantId = adminRestaurantId;
         this.date = LocalDate.now();
     }
 
