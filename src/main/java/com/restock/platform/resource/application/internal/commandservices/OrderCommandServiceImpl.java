@@ -197,6 +197,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         if (command.newState() == OrderToSupplierState.DELIVERED) {
             transferStockFromSupplierToRestaurant(order);
         }
+        //verify data in console
 
         String alertMessage;
         Long recipientId = order.getAdminRestaurantId();

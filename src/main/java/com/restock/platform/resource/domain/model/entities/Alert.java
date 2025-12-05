@@ -13,23 +13,17 @@ import java.time.LocalDate;
 public class Alert extends AuditableModel {
 
     // Core details must be final to ensure immutability once the alert is created.
-    private final String message;
-    private final Long orderId;
-    private final LocalDate date;
-    private final Long supplierId;
-    private final Long adminRestaurantId;
+    private String message;
+    private Long orderId;
+    private LocalDate date;
+    private Long supplierId;
+    private Long adminRestaurantId;
 
     // The order situation (e.g., APPROVED, DECLINED) that triggered this specific alert event.
-    private final OrderToSupplierSituation situationAtAlert;
+    private OrderToSupplierSituation situationAtAlert;
 
     // Required protected default constructor.
     protected Alert() {
-        this.message = null;
-        this.orderId = null;
-        this.date = null;
-        this.situationAtAlert = null;
-        this.supplierId = null;
-        this.adminRestaurantId = null;
     }
 
     /**
@@ -63,6 +57,6 @@ public class Alert extends AuditableModel {
      * @return Formatted situation name (e.g., ON_HOLD -> ON HOLD).
      */
     public String getSituationDescription() {
-        return this.situationAtAlert.name().replace("_", " ");
+        return this.situationAtAlert.name();
     }
 }

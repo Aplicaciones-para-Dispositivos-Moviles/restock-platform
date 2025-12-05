@@ -2,6 +2,7 @@ package com.restock.platform.resource.interfaces.rest;
 
 import com.restock.platform.resource.domain.model.queries.GetAllAlertsByAdminRestaurantIdQuery;
 import com.restock.platform.resource.domain.model.queries.GetAllAlertsBySupplierIdQuery;
+import com.restock.platform.resource.domain.model.queries.GetAllAlertsQuery;
 import com.restock.platform.resource.domain.services.AlertQueryService;
 import com.restock.platform.resource.interfaces.rest.resources.AlertResource;
 import com.restock.platform.resource.interfaces.rest.transform.AlertResourceFromEntityAssembler;
@@ -64,6 +65,22 @@ public class AlertController {
     public ResponseEntity<List<AlertResource>> getAlertsByAdminRestaurantId(@PathVariable Long adminRestaurantId) {
         var query = new GetAllAlertsByAdminRestaurantIdQuery(adminRestaurantId);
         var alerts = alertQueryService.handle(query);
+        var resources = alerts.stream()
+                .map(assembler::toResource)
+                .toList();
+        return ResponseEntity.ok(resources);
+    }
+
+    /**
+     * Get all alerts.
+     */
+    @GetMapping
+    @Operation(summary = "Get all alerts", description = "Retrieve all available alerts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Alerts retrieved successfully")
+    })
+    public ResponseEntity<List<AlertResource>> getAllAlerts() {
+        var alerts = alertQueryService.handle(new GetAllAlertsQuery());
         var resources = alerts.stream()
                 .map(assembler::toResource)
                 .toList();
