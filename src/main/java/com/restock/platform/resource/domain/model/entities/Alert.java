@@ -2,6 +2,7 @@ package com.restock.platform.resource.domain.model.entities;
 
 
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
+import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.shared.domain.model.entities.AuditableModel;
 import lombok.Getter;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,8 +22,9 @@ public class Alert extends AuditableModel {
 
     // The order situation (e.g., APPROVED, DECLINED) that triggered this specific alert event.
     private OrderToSupplierSituation situationAtAlert;
+    private OrderToSupplierState stateAtAlert;
 
-    // Required protected default constructor.
+
     protected Alert() {
     }
 
@@ -36,12 +38,17 @@ public class Alert extends AuditableModel {
         this.message = message;
         this.orderId = orderId;
         this.situationAtAlert = situation;
+        this.stateAtAlert = OrderToSupplierState.ON_HOLD;
         this.supplierId = supplierId;
         this.adminRestaurantId = adminRestaurantId;
         this.date = LocalDate.now();
     }
 
-    // Transformations
+    public void updateStatus(OrderToSupplierState newState, OrderToSupplierSituation newSituation) {
+        this.stateAtAlert = newState;
+        this.situationAtAlert = newSituation;
+    }
+
 
     /**
      * Checks if the alert requires immediate follow-up (e.g., rejection or cancellation).
