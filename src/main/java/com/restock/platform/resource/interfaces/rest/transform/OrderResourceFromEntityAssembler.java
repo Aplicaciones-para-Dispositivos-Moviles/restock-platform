@@ -27,7 +27,10 @@ public class OrderResourceFromEntityAssembler {
                 order.isPartiallyAccepted(),
                 order.getState(),
                 order.getSituation(),
-                batchItemResources
+                batchItemResources,
+                order.getDescription(),
+                order.getEstimatedShipDate(),
+                order.getEstimatedShipTime()
         );
     }
 

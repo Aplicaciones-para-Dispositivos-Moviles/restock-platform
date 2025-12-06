@@ -5,6 +5,7 @@ import com.restock.platform.resource.domain.model.aggregates.Batch;
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
+import com.restock.platform.resource.domain.model.commands.UpdateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
@@ -188,4 +189,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             throw new RuntimeException("Error deleting order: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public Optional<Order> handle(UpdateOrderCommand command) {
+        var order = orderRepository.findById(command.orderId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Order not found with id: " + command.orderId()
+                ));
+
+        order.applyUpdate(
+                command.description(),
+                command.estimatedShipDate(),
+                command.estimatedShipTime(),
+                command.batchItems()
+        );
+
+        orderRepository.save(order);
+        return Optional.of(order);
+    }
+
 }

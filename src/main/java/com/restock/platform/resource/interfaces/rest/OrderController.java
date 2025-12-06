@@ -4,13 +4,11 @@ import com.restock.platform.resource.domain.model.commands.UpdateOrderStateComma
 import com.restock.platform.resource.domain.model.queries.*;
 import com.restock.platform.resource.domain.services.OrderCommandService;
 import com.restock.platform.resource.domain.services.OrderQueryService;
-import com.restock.platform.resource.interfaces.rest.resources.BatchResource;
-import com.restock.platform.resource.interfaces.rest.resources.CreateOrderResource;
-import com.restock.platform.resource.interfaces.rest.resources.OrderResource;
-import com.restock.platform.resource.interfaces.rest.resources.UpdateOrderStateResource;
+import com.restock.platform.resource.interfaces.rest.resources.*;
 import com.restock.platform.resource.interfaces.rest.transform.BatchResourceFromEntityAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.CreateOrderCommandFromResourceAssembler;
 import com.restock.platform.resource.interfaces.rest.transform.OrderResourceFromEntityAssembler;
+import com.restock.platform.resource.interfaces.rest.transform.UpdateOrderCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -153,6 +151,28 @@ public class OrderController {
                 .toList();
         return ResponseEntity.ok(resources);
     }
+
+    @PutMapping("/{orderId}")
+    @Operation(summary = "Update order", description = "Update an existing order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    public ResponseEntity<OrderResource> updateOrder(
+            @PathVariable Long orderId,
+            @RequestBody UpdateOrderResource resource
+    ) {
+        var command = UpdateOrderCommandFromResourceAssembler.toCommand(orderId, resource);
+
+        var optionalOrder = orderCommandService.handle(command);
+
+        return optionalOrder
+                .map(order -> ResponseEntity.ok(
+                        OrderResourceFromEntityAssembler.toResourceFromEntity(order)
+                ))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }
 
 
