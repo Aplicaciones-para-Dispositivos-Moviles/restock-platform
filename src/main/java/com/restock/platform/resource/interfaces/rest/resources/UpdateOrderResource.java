@@ -4,11 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-public record CreateOrderResource(
-        Long adminRestaurantId,
-        Long supplierId,
-        List<AssignedBatchResource> batches,
+public record UpdateOrderResource(
         String description,
         LocalDate estimatedShipDate,
-        LocalTime estimatedShipTime
+        LocalTime estimatedShipTime,
+        List<UpdateOrderBatchItemResource> batchItems
 ) {}

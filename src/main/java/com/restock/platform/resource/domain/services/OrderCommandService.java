@@ -2,6 +2,7 @@ package com.restock.platform.resource.domain.services;
 
 import com.restock.platform.resource.domain.model.aggregates.Order;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
+import com.restock.platform.resource.domain.model.commands.UpdateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 
 import java.util.Optional;
@@ -33,4 +34,7 @@ public interface OrderCommandService {
      * @param orderId the ID of the order to delete
      */
     void delete(Long orderId);
+
+    Optional<Order> handle(UpdateOrderCommand command);
+
 }

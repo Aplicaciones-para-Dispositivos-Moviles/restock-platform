@@ -17,7 +17,10 @@ public class CreateOrderCommandFromResourceAssembler {
         return new CreateOrderCommand(
                 resource.adminRestaurantId(),
                 resource.supplierId(),
-                batchItems
+                batchItems,
+                resource.description(),
+                resource.estimatedShipDate(),
+                resource.estimatedShipTime()
         );
     }
 }
