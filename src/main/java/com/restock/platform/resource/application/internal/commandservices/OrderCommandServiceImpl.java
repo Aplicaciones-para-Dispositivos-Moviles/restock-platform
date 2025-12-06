@@ -7,9 +7,12 @@ import com.restock.platform.resource.domain.model.aggregates.CustomSupply;
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
+import com.restock.platform.resource.domain.model.entities.Alert;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
+import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.resource.domain.services.OrderCommandService;
+import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.AlertRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.BatchRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.CustomSupplyRepository;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.OrderRepository;
@@ -21,6 +24,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState.*;
+
+
 @Service
 public class OrderCommandServiceImpl implements OrderCommandService {
 
@@ -29,22 +35,24 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private final BatchRepository batchRepository;
     private final CustomSupplyRepository customSupplyRepository;
     private final UserRepository userRepository;
+    private final AlertRepository alertRepository;
 
 
     public OrderCommandServiceImpl(OrderRepository orderRepository,
                                    SequenceGeneratorService sequenceGeneratorService,
                                    BatchRepository batchRepository,
                                    CustomSupplyRepository customSupplyRepository,
-                                   UserRepository userRepository) {
+                                   UserRepository userRepository, AlertRepository alertRepository) {
         this.orderRepository = orderRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.batchRepository = batchRepository;
         this.customSupplyRepository = customSupplyRepository;
         this.userRepository = userRepository;
+        this.alertRepository = alertRepository;
     }
 
 
-    private void transferStockFromSupplierToRestaurant(Order order) {
+    public void transferStockFromSupplierToRestaurant(Order order) {
         Long supplierId = order.getSupplierId();
         Long restaurantId = order.getAdminRestaurantId();
 
@@ -79,7 +87,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                         .orElseThrow(() -> new IllegalArgumentException("CustomSupply not found for new restaurant batch"));
 
                 var restaurantUser = userRepository.findById(restaurantId)
-                            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + restaurantId));
+                        .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + restaurantId));
 
                 var newBatch = new Batch(
                         restaurantId,
@@ -159,6 +167,25 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
         order.finalizeOrderTotals();
         orderRepository.save(order);
+
+        // ORDER LOGIC
+        String alertMessage = String.format(
+                "New Order #%d received from restaurant ID %d. Awaiting your approval.",
+                order.getId(),
+                order.getAdminRestaurantId()
+        );
+
+        var alert = new Alert(
+                alertMessage,
+                order.getId(),
+                order.getSituation(),
+                order.getSupplierId(),
+                order.getAdminRestaurantId()
+        );
+
+        alert.setId(sequenceGeneratorService.generateSequence("alerts_sequence"));
+        alertRepository.save(alert);
+
         return order.getId();
     }
 
@@ -175,8 +202,42 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             transferStockFromSupplierToRestaurant(order);
         }
 
+        Optional<Alert> optionalAlert = alertRepository.findByOrderId(order.getId());
+
+        if (optionalAlert.isPresent()) {
+            Alert alertToUpdate = optionalAlert.get();
+            String currentOrderState = command.newState().toString();
+            String updatedMessage;
+
+            if (command.newSituation() == OrderToSupplierSituation.DECLINED) {
+                alertToUpdate.setSituationAtAlert(OrderToSupplierSituation.DECLINED);
+
+                updatedMessage = String.format(
+                        "Order #%d has been DECLINED by the supplier. State: %s",
+                        order.getId(),
+                        currentOrderState.replaceAll("_", " ")
+                );
+                alertToUpdate.setMessage(updatedMessage);
+                alertRepository.save(alertToUpdate);
+            }
+
+            else if (command.newState() != ON_HOLD) {
+                alertToUpdate.setSituationAtAlert(OrderToSupplierSituation.APPROVED);
+
+                updatedMessage = String.format(
+                        "Order #%d is now APPROVED and in progress. Status: %s.",
+                        order.getId(),
+                        currentOrderState.replaceAll("_", " ")
+                );
+                alertToUpdate.setMessage(updatedMessage);
+                alertRepository.save(alertToUpdate);
+            }
+        }
+
         return Optional.of(order);
     }
+
+
 
     @Override
     public void delete(Long orderId) {
