@@ -5,6 +5,7 @@ import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public record OrderResource(
@@ -17,6 +18,9 @@ public record OrderResource(
         boolean partiallyAccepted,
         OrderToSupplierState state,
         OrderToSupplierSituation situation,
-        List<OrderBatchItemResource> batchItems
+        List<OrderBatchItemResource> batchItems,
+        String description,
+        LocalDate estimatedShipDate,
+        LocalTime estimatedShipTime
 ) {
 }

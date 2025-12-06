@@ -20,7 +20,8 @@ public class MongoCollectionInitializer {
             "orders",
             "supplies",
             "database_sequences",
-            "sales"
+            "sales",
+            "alerts"
     );
 
     @Bean

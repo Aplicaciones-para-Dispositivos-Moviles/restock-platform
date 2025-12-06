@@ -6,6 +6,7 @@ import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -15,5 +16,9 @@ import java.util.List;
 public record CreateOrderCommand(
         Long adminRestaurantId,
         Long supplierId,
-        List<OrderBatchItem> batchItems
+        List<OrderBatchItem> batchItems,
+        String description,
+        LocalDate estimatedShipDate,
+        LocalTime estimatedShipTime
 ) {}
+

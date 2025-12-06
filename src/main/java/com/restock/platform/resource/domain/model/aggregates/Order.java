@@ -1,6 +1,7 @@
 package com.restock.platform.resource.domain.model.aggregates;
 
 import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
+import com.restock.platform.resource.domain.model.commands.UpdateOrderBatchItem;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
@@ -12,6 +13,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalTime;
+import java.util.stream.Collectors;
 
 @Document(collection = "orders")
 public class Order extends AuditableAbstractAggregateRoot<Order> {
@@ -43,6 +46,16 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
     @Getter
     private List<OrderBatchItem> batchItems = new ArrayList<>();
 
+    @Getter
+    private String description;
+
+    @Getter
+    private LocalDate estimatedShipDate;
+
+    @Getter
+    private LocalTime estimatedShipTime;
+
+
     protected Order() { }
 
     public Order(CreateOrderCommand command) {
@@ -52,6 +65,10 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
         this.partiallyAccepted = false;
         this.state = OrderToSupplierState.ON_HOLD;
         this.situation = OrderToSupplierSituation.PENDING;
+
+        this.description = command.description();
+        this.estimatedShipDate = command.estimatedShipDate();
+        this.estimatedShipTime = command.estimatedShipTime();
     }
 
     public void recalculateTotals() {
@@ -92,4 +109,38 @@ public class Order extends AuditableAbstractAggregateRoot<Order> {
     public void finalizeOrderTotals() {
         recalculateTotals();
     }
+
+
+    public void applyUpdate(
+            String description,
+            LocalDate estimatedShipDate,
+            LocalTime estimatedShipTime,
+            List<UpdateOrderBatchItem> batchItemsUpdates
+    ) {
+        if (description != null) {
+            this.description = description;
+        }
+        if (estimatedShipDate != null) {
+            this.estimatedShipDate = estimatedShipDate;
+        }
+        if (estimatedShipTime != null) {
+            this.estimatedShipTime = estimatedShipTime;
+        }
+
+        if (batchItemsUpdates != null && !batchItemsUpdates.isEmpty()) {
+            var acceptByBatchId = batchItemsUpdates.stream()
+                    .collect(Collectors.toMap(
+                            UpdateOrderBatchItem::batchId,
+                            UpdateOrderBatchItem::accept
+                    ));
+
+            this.batchItems.forEach(item -> {
+                var newAccept = acceptByBatchId.get(item.getBatchId());
+                if (newAccept != null) {
+                    item.setAccept(newAccept);
+                }
+            });
+        }
+    }
+
 }
