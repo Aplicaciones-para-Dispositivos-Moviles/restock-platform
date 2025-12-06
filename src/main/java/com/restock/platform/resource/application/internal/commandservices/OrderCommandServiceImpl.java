@@ -8,6 +8,7 @@ import com.restock.platform.resource.domain.model.commands.CreateOrderCommand;
 import com.restock.platform.resource.domain.model.commands.UpdateOrderStateCommand;
 import com.restock.platform.resource.domain.model.entities.Alert;
 import com.restock.platform.resource.domain.model.valueobjects.OrderBatchItem;
+import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierSituation;
 import com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState;
 import com.restock.platform.resource.domain.services.OrderCommandService;
 import com.restock.platform.resource.infrastructure.persistence.mongodb.repositories.AlertRepository;
@@ -21,6 +22,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.restock.platform.resource.domain.model.valueobjects.OrderToSupplierState.*;
 
 
 @Service
@@ -83,7 +86,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                         .orElseThrow(() -> new IllegalArgumentException("CustomSupply not found for new restaurant batch"));
 
                 var restaurantUser = userRepository.findById(restaurantId)
-                            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + restaurantId));
+                        .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + restaurantId));
 
                 var newBatch = new Batch(
                         restaurantId,
@@ -198,49 +201,42 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             transferStockFromSupplierToRestaurant(order);
         }
 
-        String alertMessage;
-        Long recipientId = order.getAdminRestaurantId();
-        boolean shouldCreateAlert = true;
+        Optional<Alert> optionalAlert = alertRepository.findByOrderId(order.getId());
 
-        switch (command.newSituation()) {
-            case APPROVED:
-                alertMessage = String.format(
-                        "Order #%d has been APPROVED by the supplier and is being prepared. Situation: %s",
+        if (optionalAlert.isPresent()) {
+            Alert alertToUpdate = optionalAlert.get();
+            String currentOrderState = command.newState().toString();
+            String updatedMessage;
+
+            if (command.newSituation() == OrderToSupplierSituation.DECLINED) {
+                alertToUpdate.setSituationAtAlert(OrderToSupplierSituation.DECLINED);
+
+                updatedMessage = String.format(
+                        "Order #%d has been DECLINED by the supplier. State: %s",
                         order.getId(),
-                        order.getSituation()
+                        currentOrderState.replaceAll("_", " ")
                 );
-                break;
-            case DECLINED:
-                alertMessage = String.format(
-                        "Order #%d has been DECLINED by the supplier. Situation: %s",
+                alertToUpdate.setMessage(updatedMessage);
+                alertRepository.save(alertToUpdate);
+            }
+
+            else if (command.newState() != ON_HOLD) {
+                alertToUpdate.setSituationAtAlert(OrderToSupplierSituation.APPROVED);
+
+                updatedMessage = String.format(
+                        "Order #%d is now APPROVED and in progress. Status: %s.",
                         order.getId(),
-                        order.getSituation()
+                        currentOrderState.replaceAll("_", " ")
                 );
-                break;
-            case PENDING:
-            case CANCELLED:
-            default:
-                shouldCreateAlert = false;
-                alertMessage = "";
-                break;
+                alertToUpdate.setMessage(updatedMessage);
+                alertRepository.save(alertToUpdate);
+            }
         }
-
-        if (shouldCreateAlert) {
-            var alert = new Alert(
-                    alertMessage,
-                    order.getId(),
-                    order.getSituation(),
-                    order.getSupplierId(),
-                    recipientId
-            );
-
-            alert.setId(sequenceGeneratorService.generateSequence("alerts_sequence"));
-            alertRepository.save(alert);
-        }
-
 
         return Optional.of(order);
     }
+
+
 
     @Override
     public void delete(Long orderId) {
